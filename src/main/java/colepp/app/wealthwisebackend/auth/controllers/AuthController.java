@@ -22,7 +22,8 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<JwtResponseDto> login(@Valid @RequestBody UserLoginDto userLoginRequest) {
-        return ResponseEntity.ok().build();
+        var response = authService.login(userLoginRequest);
+        return ResponseEntity.ok(response);
     }
 
     @ExceptionHandler(BadCredentialsException.class)

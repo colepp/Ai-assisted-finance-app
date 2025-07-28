@@ -21,7 +21,6 @@ public class AuthService {
                         userLoginRequest.getEmail(),
                         userLoginRequest.getPassword())
         );
-        var token = jwtService.generateToken(userLoginRequest.getEmail());
-        return token;
+        return new JwtResponseDto(jwtService.generateToken(userLoginRequest.getEmail()));
     }
 }

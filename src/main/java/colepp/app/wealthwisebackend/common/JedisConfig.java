@@ -2,7 +2,6 @@ package colepp.app.wealthwisebackend.common;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.UnifiedJedis;
