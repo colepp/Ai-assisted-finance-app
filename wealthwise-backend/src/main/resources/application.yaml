@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: wealthwise
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+  jpa:
+    show-sql: true
+  jwt:
+    secret:${JWT_SECRET}
+
+plaid:
+  client-id: ${PLAID_CLIENT_KEY}
+  secret: ${PLAID_SECRET_KEY}
+  env: ${PLAID_ENV}
+  country-codes: ${PLAID_COUNTRY_CODES}
+  products: ${PLAID_PRODUCTS}
+redis:
+  host: ${REDIS_HOST}
+  port: ${REDIS_PORT}
+  user: ${REDIS_USERNAME}
+  pass: ${REDIS_PASSWORD}
