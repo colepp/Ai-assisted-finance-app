@@ -37,12 +37,6 @@ public class PlaidConfig {
         return HttpClient.newHttpClient();
     }
 
-    @Bean
-    ObjectMapper objectMapper() {
-        return new ObjectMapper();
-    }
-
-
     public String getPlaidUrl(){
         switch (env){
             case "sandbox" -> {return "https://sandbox.plaid.com/";}

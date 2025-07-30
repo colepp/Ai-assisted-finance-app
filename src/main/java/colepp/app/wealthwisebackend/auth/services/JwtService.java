@@ -23,7 +23,7 @@ public class JwtService {
     public String generateToken(String email) {
         return Jwts
                 .builder()
-                .setSubject(email)
+                .subject(email)
                 .issuedAt(new Date())
                 .expiration(new  Date(System.currentTimeMillis() + 1000 * tokenExpiration))
                 .signWith(Keys.hmacShaKeyFor(secret.getBytes()))
