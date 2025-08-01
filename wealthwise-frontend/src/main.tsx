@@ -1,11 +1,11 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import LoginPage from './LoginPage/LoginPage.tsx'
-import RegisterPage from './RegisterPage/RegisterPage.tsx'
+import React from 'react';
+import ReactDOM from 'react-dom/client'; // Note the /client import
+import { BrowserRouter } from 'react-router-dom';
+import App from './App';
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <LoginPage/>
-  </StrictMode>,
-)
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+    <BrowserRouter>
+        <App />
+    </BrowserRouter>
+);
