@@ -1,6 +1,7 @@
 package colepp.app.wealthwisebackend.users.controllers;
 
 
+import colepp.app.wealthwisebackend.auth.dtos.JwtResponseDto;
 import colepp.app.wealthwisebackend.common.dtos.ErrorDto;
 import colepp.app.wealthwisebackend.users.dtos.RegisterUserDto;
 import colepp.app.wealthwisebackend.users.dtos.UpdateUserDto;
@@ -38,21 +39,21 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserDto> updateUser(@PathVariable("id") Long id, @RequestBody UpdateUserDto userUpdateRequest) {
-        var user = userService.updateUser(id,userUpdateRequest);
+    public ResponseEntity<UserDto> updateUser(@PathVariable("id") Long id, @RequestBody UpdateUserDto request) {
+        var user = userService.updateUser(id,request);
 
         return ResponseEntity.ok().body(user);
     }
 
     @PostMapping
-    public ResponseEntity<UserDto> registerUser(
-            @Valid @RequestBody RegisterUserDto registerUserRequest,
+    public ResponseEntity<JwtResponseDto> registerUser(
+            @Valid @RequestBody RegisterUserDto request,
             UriComponentsBuilder uriBuilder) {
 
-        var user = userService.registerUser(registerUserRequest);
-
+        var user = userService.registerUser(request);
         var uri = uriBuilder.path("/users/{id}").buildAndExpand(user.getId()).toUri();
-        return ResponseEntity.created(uri).body(user);
+        JwtResponseDto token = userService.registerSignIn(user.getEmail());
+        return ResponseEntity.created(uri).body(token);
     }
 
     @DeleteMapping("/{id}")

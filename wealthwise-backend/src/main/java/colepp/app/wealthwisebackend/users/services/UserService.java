@@ -1,5 +1,7 @@
 package colepp.app.wealthwisebackend.users.services;
 
+import colepp.app.wealthwisebackend.auth.dtos.JwtResponseDto;
+import colepp.app.wealthwisebackend.auth.services.JwtService;
 import colepp.app.wealthwisebackend.users.dtos.RegisterUserDto;
 import colepp.app.wealthwisebackend.users.dtos.UpdateUserDto;
 import colepp.app.wealthwisebackend.users.dtos.UserDto;
@@ -25,6 +27,7 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     public User getUser(Long id){
         var user =  userRepository.findById(id).orElse(null);
@@ -48,17 +51,21 @@ public class UserService implements UserDetailsService {
 
     }
 
-    public UserDto registerUser(RegisterUserDto registerUserRequest){
+    public UserDto registerUser(RegisterUserDto request){
 
-        if (userRepository.existsByEmail(registerUserRequest.getEmail())) {
+        if (userRepository.existsByEmail(request.getEmail())) {
             throw new AccountExistException("Email already exists");
         }
 
-        var user = userMapper.registerUserDtoToUser(registerUserRequest);
+        var user = userMapper.registerUserDtoToUser(request);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user = userRepository.save(user);
+        userRepository.save(user);
 
         return userMapper.userToUserDto(user);
+    }
+
+    public JwtResponseDto registerSignIn(String email){
+        return new JwtResponseDto(jwtService.generateToken(email));
     }
 
     public void deleteUser(Long id){

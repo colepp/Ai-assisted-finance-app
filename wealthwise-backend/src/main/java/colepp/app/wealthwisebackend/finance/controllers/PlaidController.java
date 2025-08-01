@@ -22,9 +22,9 @@ public class PlaidController {
 
     @PostMapping("/create_link_token")
     @CrossOrigin
-    public ResponseEntity<String> createLinkToken(){
+    public ResponseEntity<String> createLinkToken(@RequestHeader Long id){
         try {
-            var linkToken = plaidFinanceService.createLinkToken();
+            var linkToken = plaidFinanceService.createLinkToken(id);
             return ResponseEntity.ok().body(linkToken);
         } catch (Exception e) {
             throw new PlaidCreateLinkTokenException(e.getMessage());
@@ -34,16 +34,16 @@ public class PlaidController {
 
     @PostMapping("/exchange_public_token")
     @CrossOrigin
-    public ResponseEntity<String> exchangePublicToken(@RequestBody ExchangePublicTokenRequestDto request) throws Exception {
+    public ResponseEntity<String> exchangePublicToken(@RequestBody ExchangePublicTokenRequestDto request,@RequestHeader Long id) throws Exception {
         System.out.println(request.getPublicToken());
-        plaidFinanceService.exchangePublicToken(request.getPublicToken());
+        plaidFinanceService.exchangePublicToken(request.getPublicToken(),id);
         return null;
     }
 
     @PostMapping("/account_info")
     @CrossOrigin
-    public ResponseEntity<String> getAccountInformation() throws JsonProcessingException {
-        String str = plaidFinanceService.getAccountInformation();
+    public ResponseEntity<String> getAccountInformation(@RequestHeader Long id) throws JsonProcessingException {
+        String str = plaidFinanceService.getAccountInformation(id);
         return ResponseEntity.ok().body(str);
     }
 

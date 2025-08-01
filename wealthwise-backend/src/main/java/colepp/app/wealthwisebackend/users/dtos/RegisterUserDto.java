@@ -1,5 +1,6 @@
 package colepp.app.wealthwisebackend.users.dtos;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -20,6 +21,12 @@ public class RegisterUserDto {
     @Size(min = 6,max= 25,message = "Password mus be between 6 to 25 characters")
     public String password;
 
+    @NotBlank(message = "Password connfirmation is Required ")
+    @Size(min = 6,max= 25,message = "Password mus be between 6 to 25 characters")
+    @JsonProperty("confirm_password")
+    public String confirmPassword;
+
+    @JsonProperty("phone_number")
     @NotBlank(message = "Phone number is required")
     public String phoneNumber;
 }
