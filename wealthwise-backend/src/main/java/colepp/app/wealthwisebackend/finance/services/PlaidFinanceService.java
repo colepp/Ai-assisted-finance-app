@@ -14,6 +14,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
 
 import java.net.URI;
@@ -32,53 +34,57 @@ public class PlaidFinanceService {
     private final UserRepository userRepository;
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
+    private final Jedis jedis;
+    private final int expireTime = 1800;
 
 
-    public String createLinkToken() throws Exception{
-        var user = createPlaidUser();
+    public String createLinkToken(Long userId) throws Exception{
+        var user = createPlaidUser(userId);
         var linkTokenRequest = createLinkTokenRequest(user);
         var response = sendPostRequest(objectMapper.writeValueAsString(linkTokenRequest),"link/token/create");
         return response.body();
     }
 
-    public ExchangePublicTokenResponseDto exchangePublicToken(String publicToken) throws Exception {
+    public ExchangePublicTokenResponseDto exchangePublicToken(String publicToken,Long userId) throws Exception {
 
-        var exchangePublicTokenRequestDto = createExchangePublicToken(publicToken);
-
-        var user = userRepository.findById(1L).orElse(null);
+        var user = userRepository.findById(userId).orElse(null);
         if(user == null){
             throw new UserNotFoundException("User not found");
         }
-        var response = sendPostRequest(objectMapper.writeValueAsString(exchangePublicTokenRequestDto), "item/public_token/exchange");
+        var response = sendPostRequest(objectMapper.writeValueAsString(createExchangePublicToken(publicToken)), "item/public_token/exchange");
         if (response == null) {
             throw new FailedPlaidRequest("Could not create token");
         }
-        ExchangePublicTokenResponseDto responseDto = objectMapper.readValue(response.body(), ExchangePublicTokenResponseDto.class);
-        user.setAccessToken(responseDto.getAccessToken());
-        user.setAccountLinkStatus(UserLinkStatus.LINK_STATUS_CREATED);
+        ExchangePublicTokenResponseDto responseMap = objectMapper.readValue(response.body(), ExchangePublicTokenResponseDto.class);
+        user.setAccessToken(responseMap.getAccessToken());
+        user.setAccountLinkStatus(UserLinkStatus.LINKED);
         userRepository.save(user);
-        return responseDto;
+        return responseMap;
     }
 
-    public String getAccountInformation() throws JsonProcessingException {
-        var user  = userRepository.findById(1L).orElse(null);
+    public String getAccountInformation(Long userId) throws JsonProcessingException {
+        var user  = userRepository.findById(userId).orElse(null);
         if(user == null){
             throw new UserNotFoundException("User not found");
         }
-        var accountInfoRequest = AccountInformationRequestDto
-                .builder()
-                .accessToken(user.getAccessToken())
-                .clientId(plaidCredentials.getClientId())
-                .secret(plaidCredentials.getSecretKey())
-                .build();
-        var response = sendPostRequest(objectMapper.writeValueAsString(accountInfoRequest),"auth/get");
-        if(response == null){
-            throw new FailedPlaidRequest("Could not get account information");
+        String jedisRequest = jedis.get("user-id" + userId);
+        if (jedisRequest == null) {
+            var accountInfoRequest = AccountInformationRequestDto
+                    .builder()
+                    .accessToken(user.getAccessToken())
+                    .clientId(plaidCredentials.getClientId())
+                    .secret(plaidCredentials.getSecretKey())
+                    .build();
+            var response = sendPostRequest(objectMapper.writeValueAsString(accountInfoRequest),"auth/get");
+            if(response == null){
+                throw new FailedPlaidRequest("Could not get account information");
+            }
+            System.out.println(response.body());
+            jedis.set("user-id" + userId, response.body());
+            jedis.expire("user-id" + userId, expireTime);
+            return "";
         }
-        System.out.println(response.body());
-        return "";
-
-
+        return jedisRequest;
     }
 
 
@@ -96,11 +102,11 @@ public class PlaidFinanceService {
         }
     }
 
-    public PlaidUserInfoDto createPlaidUser(){
+    public PlaidUserInfoDto createPlaidUser(Long userId){
 
         PlaidUserInfoDto userInfo = new PlaidUserInfoDto();
 
-        var user = userRepository.findById(1L).orElse(null);
+        var user = userRepository.findById(userId).orElse(null);
         if(user == null){
             throw new UserNotFoundException("User not found");
         }

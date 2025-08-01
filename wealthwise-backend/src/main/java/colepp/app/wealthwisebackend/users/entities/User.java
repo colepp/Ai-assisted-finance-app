@@ -1,12 +1,10 @@
 package colepp.app.wealthwisebackend.users.entities;
 
-import colepp.app.wealthwisebackend.finance.dtos.PlaidUserInfoDto;
+
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
+
 
 @Getter
 @Setter

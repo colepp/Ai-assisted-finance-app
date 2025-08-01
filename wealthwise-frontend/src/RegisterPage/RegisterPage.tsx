@@ -25,7 +25,7 @@ export default function RegisterPage(){
     setPassword(event.target.value);
   }
 
-  function handleConfrimPasswordChange(event: React.ChangeEvent<HTMLInputElement>){
+  function handleConfirmPasswordChange(event: React.ChangeEvent<HTMLInputElement>){
     setConfirmPassword(event.target.value);
   }
   
@@ -106,7 +106,7 @@ export default function RegisterPage(){
                 </label>
                 <input
                  value={confirmPassword}
-                 onChange={handleConfrimPasswordChange}
+                 onChange={handleConfirmPasswordChange}
                  type="password" 
                  id="confirmPassword" 
                  name="confirmPassword"
