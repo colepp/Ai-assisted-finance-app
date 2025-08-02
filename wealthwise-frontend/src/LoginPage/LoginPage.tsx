@@ -2,6 +2,8 @@ import '../index.css'
 import { useState, type SetStateAction } from 'react';
 import { setCookie, getCookie } from '../Utils/Utils';
 import '../../public/wealth-wise-log.svg'
+import Header from "../PageComponents/Header.tsx";
+import Footer from "../PageComponents/Footer.tsx";
 
 export default function LoginPage(){
 
@@ -40,6 +42,8 @@ export default function LoginPage(){
     }
   
   return (
+      <>
+        <Header/>
     <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
         <img
@@ -106,5 +110,6 @@ export default function LoginPage(){
         <p></p>
       </div>
     </div>
+        </>
   );
 }
