@@ -21,8 +21,7 @@ public class PlaidController {
     private final PlaidFinanceService plaidFinanceService;
 
     @PostMapping("/create_link_token")
-    @CrossOrigin
-    public ResponseEntity<String> createLinkToken(@RequestHeader Long id){
+    public ResponseEntity<String> createLinkToken(@RequestHeader(name="user-id",required = true) Long id){
         try {
             var linkToken = plaidFinanceService.createLinkToken(id);
             return ResponseEntity.ok().body(linkToken);
@@ -33,7 +32,6 @@ public class PlaidController {
     }
 
     @PostMapping("/exchange_public_token")
-    @CrossOrigin
     public ResponseEntity<String> exchangePublicToken(@RequestBody ExchangePublicTokenRequestDto request,@RequestHeader Long id) throws Exception {
         System.out.println(request.getPublicToken());
         plaidFinanceService.exchangePublicToken(request.getPublicToken(),id);
@@ -41,7 +39,6 @@ public class PlaidController {
     }
 
     @PostMapping("/account_info")
-    @CrossOrigin
     public ResponseEntity<String> getAccountInformation(@RequestHeader Long id) throws JsonProcessingException {
         String str = plaidFinanceService.getAccountInformation(id);
         return ResponseEntity.ok().body(str);

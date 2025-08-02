@@ -1,8 +1,25 @@
 import Header from "../PageComponents/Header.tsx";
 import Footer from "../PageComponents/Footer.tsx";
+import { useEffect } from "react";
 
 export default function BankLink()
 {
+
+    useEffect(() => {
+        const linkToken = async () => {
+            try {
+                const data = await fetch("http://localhost:8080/plaid/api/create_link_token",{
+                    method: "POST",
+                    headers: {
+                        "user-id": "4",
+                        "Content-Type": "application/json",
+                    }
+                });
+            }catch{ console.error('API call failed');} 
+        };
+        linkToken();
+    }, []);
+
 
     return(
         <>

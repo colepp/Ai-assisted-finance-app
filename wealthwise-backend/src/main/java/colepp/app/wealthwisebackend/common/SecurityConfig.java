@@ -22,6 +22,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 
 import java.util.Arrays;
+import java.util.List;
 
 
 @AllArgsConstructor
@@ -50,20 +51,21 @@ public class SecurityConfig {
                 .authorizeHttpRequests(c -> c
                                 .requestMatchers(HttpMethod.POST,"/users").permitAll()
                                 .requestMatchers(HttpMethod.POST,"/auth/login").permitAll()
-                                .anyRequest().authenticated()
+                                .requestMatchers(HttpMethod.POST,"/plaid/api/**").permitAll()
+
                         )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
 
         return http.build();
     }
-
     @Bean
     UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
+        corsConfiguration.setAllowedOrigins(List.of("http://localhost:55173/", "http://localhost:5173"));
         corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "OPTIONS"));
         corsConfiguration.setAllowedHeaders(Arrays.asList("*"));
+        corsConfiguration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", corsConfiguration);
         return source;
