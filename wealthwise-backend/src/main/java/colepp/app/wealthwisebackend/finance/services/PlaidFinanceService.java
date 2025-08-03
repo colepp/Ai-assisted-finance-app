@@ -1,5 +1,6 @@
 package colepp.app.wealthwisebackend.finance.services;
 
+import colepp.app.wealthwisebackend.auth.services.JwtService;
 import colepp.app.wealthwisebackend.finance.config.PlaidCredentials;
 
 import colepp.app.wealthwisebackend.finance.dtos.*;
@@ -15,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
 
 
 import java.net.URI;
@@ -23,7 +23,6 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.Arrays;
 
 @Slf4j
 @Service
@@ -36,18 +35,18 @@ public class PlaidFinanceService {
     private final ObjectMapper objectMapper;
     private final Jedis jedis;
     private final int expireTime = 1800;
+    private final JwtService jwtService;
 
-
-    public String createLinkToken(Long userId) throws Exception{
-        var user = createPlaidUser(userId);
+    public String createLinkToken(String token) throws Exception{
+        var user = createPlaidUser(jwtService.getEmailFromToken(token));
         var linkTokenRequest = createLinkTokenRequest(user);
         var response = sendPostRequest(objectMapper.writeValueAsString(linkTokenRequest),"link/token/create");
         return response.body();
     }
 
-    public ExchangePublicTokenResponseDto exchangePublicToken(String publicToken,Long userId) throws Exception {
+    public void exchangePublicToken(String publicToken, String token) throws Exception {
 
-        var user = userRepository.findById(userId).orElse(null);
+        var user = userRepository.findByEmail(jwtService.getEmailFromToken(token)).orElse(null);
         if(user == null){
             throw new UserNotFoundException("User not found");
         }
@@ -59,15 +58,15 @@ public class PlaidFinanceService {
         user.setAccessToken(responseMap.getAccessToken());
         user.setAccountLinkStatus(UserLinkStatus.LINKED);
         userRepository.save(user);
-        return responseMap;
     }
 
-    public String getAccountInformation(Long userId) throws JsonProcessingException {
-        var user  = userRepository.findById(userId).orElse(null);
+    public String getAccountInformation(String token) throws JsonProcessingException {
+        var user  = userRepository.findByEmail(jwtService.getEmailFromToken(token)).orElse(null);
         if(user == null){
             throw new UserNotFoundException("User not found");
         }
-        String jedisRequest = jedis.get("user-id" + userId);
+        var userId = user.getId();
+        String jedisRequest = jedis.get("user-id-" + userId);
         if (jedisRequest == null) {
             var accountInfoRequest = AccountInformationRequestDto
                     .builder()
@@ -81,13 +80,11 @@ public class PlaidFinanceService {
             }
             System.out.println(response.body());
             jedis.set("user-id" + userId, response.body());
-            jedis.expire("user-id" + userId, expireTime);
-            return "";
+            jedis.expire("user-id-" + userId, expireTime);
+            return response.body();
         }
         return jedisRequest;
     }
-
-
 
     public HttpResponse<String> sendPostRequest(String requestJson,String url){
         try{
@@ -102,11 +99,11 @@ public class PlaidFinanceService {
         }
     }
 
-    public PlaidUserInfoDto createPlaidUser(Long userId){
+    public PlaidUserInfoDto createPlaidUser(String userEmail){
 
         PlaidUserInfoDto userInfo = new PlaidUserInfoDto();
 
-        var user = userRepository.findById(userId).orElse(null);
+        var user = userRepository.findByEmail(userEmail).orElse(null);
         if(user == null){
             throw new UserNotFoundException("User not found");
         }

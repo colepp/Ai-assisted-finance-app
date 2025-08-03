@@ -21,9 +21,9 @@ public class PlaidController {
     private final PlaidFinanceService plaidFinanceService;
 
     @PostMapping("/create_link_token")
-    public ResponseEntity<String> createLinkToken(@RequestHeader(name="user-id",required = true) Long id){
+    public ResponseEntity<String> createLinkToken(@RequestHeader(name = "Authorization") String token){
         try {
-            var linkToken = plaidFinanceService.createLinkToken(id);
+            var linkToken = plaidFinanceService.createLinkToken(token);
             return ResponseEntity.ok().body(linkToken);
         } catch (Exception e) {
             throw new PlaidCreateLinkTokenException(e.getMessage());
@@ -32,15 +32,15 @@ public class PlaidController {
     }
 
     @PostMapping("/exchange_public_token")
-    public ResponseEntity<String> exchangePublicToken(@RequestBody ExchangePublicTokenRequestDto request,@RequestHeader Long id) throws Exception {
+    public ResponseEntity<String> exchangePublicToken(@RequestBody ExchangePublicTokenRequestDto request,@RequestHeader("Authorization") String token) throws Exception {
         System.out.println(request.getPublicToken());
-        plaidFinanceService.exchangePublicToken(request.getPublicToken(),id);
+        plaidFinanceService.exchangePublicToken(request.getPublicToken(),token);
         return null;
     }
 
     @PostMapping("/account_info")
-    public ResponseEntity<String> getAccountInformation(@RequestHeader Long id) throws JsonProcessingException {
-        String str = plaidFinanceService.getAccountInformation(id);
+    public ResponseEntity<String> getAccountInformation(@RequestHeader("Authorization") String token) throws JsonProcessingException {
+        String str = plaidFinanceService.getAccountInformation(token);
         return ResponseEntity.ok().body(str);
     }
 
