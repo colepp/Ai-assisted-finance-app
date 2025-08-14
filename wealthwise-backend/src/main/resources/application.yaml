@@ -16,8 +16,12 @@ plaid:
   env: ${PLAID_ENV}
   country-codes: ${PLAID_COUNTRY_CODES}
   products: ${PLAID_PRODUCTS}
+
 redis:
   host: ${REDIS_HOST}
   port: ${REDIS_PORT}
   user: ${REDIS_USERNAME}
   pass: ${REDIS_PASSWORD}
+
+postmark:
+  client-id: ${POSTMARK_CLIENT_KEY}

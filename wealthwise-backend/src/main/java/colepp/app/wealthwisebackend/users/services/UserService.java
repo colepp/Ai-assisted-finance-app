@@ -1,7 +1,9 @@
 package colepp.app.wealthwisebackend.users.services;
 
-import colepp.app.wealthwisebackend.auth.dtos.JwtResponseDto;
-import colepp.app.wealthwisebackend.auth.services.JwtService;
+import colepp.app.wealthwisebackend.common.dtos.JwtResponseDto;
+import colepp.app.wealthwisebackend.common.services.EmailService;
+import colepp.app.wealthwisebackend.common.services.JwtService;
+import colepp.app.wealthwisebackend.common.services.PostmarkEmailService;
 import colepp.app.wealthwisebackend.users.dtos.RegisterUserDto;
 import colepp.app.wealthwisebackend.users.dtos.UpdateUserDto;
 import colepp.app.wealthwisebackend.users.dtos.UserDto;
@@ -11,11 +13,13 @@ import colepp.app.wealthwisebackend.users.excpetions.UserNotFoundException;
 import colepp.app.wealthwisebackend.users.mappers.UserMapper;
 import colepp.app.wealthwisebackend.users.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 import java.util.Collections;
 
