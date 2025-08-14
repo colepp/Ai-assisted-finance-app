@@ -4,8 +4,11 @@ import {setCookie, getCookie, redirect} from '../Utils/Utils';
 import '../../public/wealth-wise-log.svg'
 import Footer from "../PageComponents/Footer.tsx";
 import Header from "../PageComponents/Header.tsx";
+import {useNavigate} from "react-router-dom";
 
 export default function RegisterPage(){
+
+    const navigate = useNavigate();
 
   // Form Related
   const [email,setEmail] = useState('');
@@ -62,7 +65,7 @@ export default function RegisterPage(){
         const data = await response.json();
         console.log(data);
         setCookie('auth-token',data.token);
-        // redirect('/login')
+        navigate("/verify");
       }catch(e){
         console.log(e);
       }
