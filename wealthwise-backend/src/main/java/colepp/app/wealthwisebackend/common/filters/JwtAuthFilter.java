@@ -1,6 +1,6 @@
-package colepp.app.wealthwisebackend.auth.filters;
+package colepp.app.wealthwisebackend.common.filters;
 
-import colepp.app.wealthwisebackend.auth.services.JwtService;
+import colepp.app.wealthwisebackend.common.services.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

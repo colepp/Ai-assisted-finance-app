@@ -1,6 +1,6 @@
-package colepp.app.wealthwisebackend.common;
+package colepp.app.wealthwisebackend.common.config;
 
-import colepp.app.wealthwisebackend.auth.filters.JwtAuthFilter;
+import colepp.app.wealthwisebackend.common.filters.JwtAuthFilter;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -49,7 +49,7 @@ public class SecurityConfig {
                         c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))// set stateless session
                 .csrf(AbstractHttpConfigurer::disable) // disable csrf
                 .authorizeHttpRequests(c -> c
-                                .requestMatchers(HttpMethod.POST,"/users").permitAll()
+                                .requestMatchers(HttpMethod.POST,"/users/**").permitAll()
                                 .requestMatchers(HttpMethod.POST,"/auth/login").permitAll()
                                 .requestMatchers(HttpMethod.POST,"/plaid/api/**").permitAll()
 
@@ -62,7 +62,7 @@ public class SecurityConfig {
     @Bean
     UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedOrigins(List.of("http://localhost:55173/", "http://localhost:5173"));
+        corsConfiguration.setAllowedOrigins(List.of("http://localhost:5173/", "http://localhost:5173"));
         corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "OPTIONS"));
         corsConfiguration.setAllowedHeaders(Arrays.asList("*"));
         corsConfiguration.setAllowCredentials(true);

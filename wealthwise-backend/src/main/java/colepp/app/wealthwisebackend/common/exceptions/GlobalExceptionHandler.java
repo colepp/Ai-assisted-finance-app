@@ -1,4 +1,4 @@
-package colepp.app.wealthwisebackend.common;
+package colepp.app.wealthwisebackend.common.exceptions;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;

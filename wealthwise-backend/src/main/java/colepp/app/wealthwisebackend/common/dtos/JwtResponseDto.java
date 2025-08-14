@@ -1,4 +1,4 @@
-package colepp.app.wealthwisebackend.auth.dtos;
+package colepp.app.wealthwisebackend.common.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

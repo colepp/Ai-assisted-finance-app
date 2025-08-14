@@ -1,4 +1,4 @@
-package colepp.app.wealthwisebackend.auth.services;
+package colepp.app.wealthwisebackend.common.services;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;

@@ -1,4 +1,4 @@
-package colepp.app.wealthwisebackend.common;
+package colepp.app.wealthwisebackend.common.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
