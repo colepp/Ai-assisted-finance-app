@@ -1,6 +1,6 @@
 package colepp.app.wealthwisebackend.finance.services;
 
-import colepp.app.wealthwisebackend.auth.services.JwtService;
+import colepp.app.wealthwisebackend.common.services.JwtService;
 import colepp.app.wealthwisebackend.finance.config.PlaidCredentials;
 
 import colepp.app.wealthwisebackend.finance.dtos.*;

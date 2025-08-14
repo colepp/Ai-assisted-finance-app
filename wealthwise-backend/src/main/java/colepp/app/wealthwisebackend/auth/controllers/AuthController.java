@@ -1,6 +1,6 @@
 package colepp.app.wealthwisebackend.auth.controllers;
 
-import colepp.app.wealthwisebackend.auth.dtos.JwtResponseDto;
+import colepp.app.wealthwisebackend.common.dtos.JwtResponseDto;
 import colepp.app.wealthwisebackend.auth.dtos.UserLoginDto;
 import colepp.app.wealthwisebackend.auth.services.AuthService;
 import colepp.app.wealthwisebackend.common.dtos.ErrorDto;

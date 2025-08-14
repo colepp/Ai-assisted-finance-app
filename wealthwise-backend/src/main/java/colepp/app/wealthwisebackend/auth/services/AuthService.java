@@ -1,12 +1,12 @@
 package colepp.app.wealthwisebackend.auth.services;
 
-import colepp.app.wealthwisebackend.auth.dtos.JwtResponseDto;
+import colepp.app.wealthwisebackend.common.dtos.JwtResponseDto;
 import colepp.app.wealthwisebackend.auth.dtos.UserLoginDto;
+import colepp.app.wealthwisebackend.common.services.JwtService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @AllArgsConstructor
 
