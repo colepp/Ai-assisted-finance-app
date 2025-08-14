@@ -17,13 +17,10 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 
 @AllArgsConstructor
 
@@ -57,6 +54,18 @@ public class UserController {
         return ResponseEntity.created(uri).body(token);
     }
 
+    @PostMapping("/email_test")
+    public ResponseEntity<Void> testEmailService(){
+        userService.sendTestEmail();
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<Void> sendRegisterEmail(@RequestHeader("Authorization") String token) {
+        userService.sendRegistrationEmail(token);
+        return ResponseEntity.ok().build();
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable("id") Long id) {
         userService.deleteUser(id);
@@ -74,6 +83,7 @@ public class UserController {
     public ResponseEntity<ErrorDto> handleAccountExistException() {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorDto("User already exists", LocalDateTime.now()));
     }
+
 
 
 

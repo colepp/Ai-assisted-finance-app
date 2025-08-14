@@ -27,7 +27,10 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
     private final JwtService jwtService;
+
+
 
     public User getUser(Long id){
         var user =  userRepository.findById(id).orElse(null);
@@ -76,6 +79,20 @@ public class UserService implements UserDetailsService {
         userRepository.delete(user);
     }
 
+    public void sendTestEmail(){
+        emailService.sendRegistrationMessage("cole","palmorecp@beloit.edu","palmorecp@beloit.edu","WWReg");
+    }
+
+    public void sendRegistrationEmail(String token) {
+        var email = jwtService.getEmailFromToken(token);
+        var user = userRepository.findByEmail(email).orElse(null);
+        if(user == null){
+            throw new UserNotFoundException("User not found");
+        }
+        emailService.sendRegistrationMessage(user.getName(),email,"","WWReg");
+
+    }
+
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         var user = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found"));
@@ -84,4 +101,5 @@ public class UserService implements UserDetailsService {
 
 
     }
+
 }
