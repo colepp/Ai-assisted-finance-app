@@ -1,7 +1,7 @@
 import Header from "../PageComponents/Header.tsx";
 import Footer from "../PageComponents/Footer.tsx";
 import { useEffect, useState } from "react";
-import { getCookie } from "../Utils/Utils.tsx";
+import { getCookie, redirect } from "../Utils/Utils.tsx";
 import { usePlaidLink, type PlaidLinkOptions } from "react-plaid-link";
 import { useNavigate } from "react-router-dom";
 
@@ -23,7 +23,7 @@ export default function BankLink() {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        Authorization: getCookie("auth-token"),
+                        "Authorization": `Bearer ${getCookie("auth-token")}`,
                     },
                 });
                 const data = await response.json();
@@ -71,7 +71,7 @@ export default function BankLink() {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
-                            Authorization: getCookie("auth-token") || "",
+                            "Authorization": `Bearer ${getCookie("auth-token")}` || "",
                         },
                         body: JSON.stringify({ public_token: publicToken }),
                     });

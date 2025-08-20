@@ -5,12 +5,6 @@ import {createCookie} from "react-router-dom";
 
 export default function VerifyEmail() {
 
-
-    useEffect(() => {
-        const sendEmail =
-    },[])
-
-
   return (
     <div className="flex flex-col min-h-screen bg-gray-100 dark:bg-gray-900">
       <main className="flex-grow flex items-center justify-center">
