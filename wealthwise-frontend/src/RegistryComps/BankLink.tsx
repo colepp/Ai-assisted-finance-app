@@ -3,10 +3,13 @@ import Footer from "../PageComponents/Footer.tsx";
 import { useEffect, useState } from "react";
 import { getCookie } from "../Utils/Utils.tsx";
 import { usePlaidLink, type PlaidLinkOptions } from "react-plaid-link";
+import { useNavigate } from "react-router-dom";
 
 export default function BankLink() {
     const [linkToken, setLinkToken] = useState<string | null>(null);
     const [publicToken, setPublicToken] = useState<string | null>(null);
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         const getlinkToken = async () => {
@@ -77,6 +80,7 @@ export default function BankLink() {
                 } catch (error) {
                     console.error("Failed to exchange public token:", error);
                 }
+                navigate("/");
             };
             sendPublicToken();
         }
