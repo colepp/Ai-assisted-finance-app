@@ -1,7 +1,7 @@
 import Header from "../PageComponents/Header.tsx";
 import Footer from "../PageComponents/Footer.tsx";
 import { useEffect, useState } from "react";
-import { getCookie, redirect } from "../Utils/Utils.tsx";
+import { getCookie} from "../Utils/Utils.tsx";
 import { usePlaidLink, type PlaidLinkOptions } from "react-plaid-link";
 import { useNavigate } from "react-router-dom";
 
