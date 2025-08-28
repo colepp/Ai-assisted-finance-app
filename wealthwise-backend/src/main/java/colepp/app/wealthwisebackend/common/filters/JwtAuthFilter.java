@@ -25,13 +25,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         var authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        var token = jwtService.formatToken(authHeader);
+        if (authHeader == null) {
             filterChain.doFilter(request, response);
             return;
 
         }
 
-        var token  = authHeader.replace("Bearer ", "");
+//        var token  = authHeader.replace("Bearer ", "");
         if(!jwtService.isValidToken(token)) {
             filterChain.doFilter(request, response);
             return;

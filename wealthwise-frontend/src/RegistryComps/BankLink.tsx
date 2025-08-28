@@ -14,6 +14,7 @@ export default function BankLink() {
     useEffect(() => {
         const getlinkToken = async () => {
             const authToken = getCookie("auth-token");
+            console.log(authToken);
             if (authToken === null) {
                 console.error("User Not Valid Or Token Expired");
                 return;

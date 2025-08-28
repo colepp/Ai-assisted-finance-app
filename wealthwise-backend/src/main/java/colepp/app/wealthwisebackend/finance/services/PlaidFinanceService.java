@@ -7,7 +7,9 @@ import colepp.app.wealthwisebackend.finance.dtos.*;
 import colepp.app.wealthwisebackend.finance.exceptions.FailedPlaidRequest;
 
 import colepp.app.wealthwisebackend.users.entities.UserLinkStatus;
+import colepp.app.wealthwisebackend.users.excpetions.UserInfoNotFound;
 import colepp.app.wealthwisebackend.users.excpetions.UserNotFoundException;
+import colepp.app.wealthwisebackend.users.repositories.UserBankingRepository;
 import colepp.app.wealthwisebackend.users.repositories.UserRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,9 +38,10 @@ public class PlaidFinanceService {
     private final Jedis jedis;
     private final int expireTime = 1800;
     private final JwtService jwtService;
+    private final UserBankingRepository userBankingRepository;
 
     public String createLinkToken(String token) throws Exception{
-        var user = createPlaidUser(jwtService.getEmailFromToken(token));
+        var user = createPlaidUser(jwtService.getEmailFromToken(jwtService.formatToken(token)));
         var linkTokenRequest = createLinkTokenRequest(user);
         var response = sendPostRequest(objectMapper.writeValueAsString(linkTokenRequest),"link/token/create");
         return response.body();
@@ -46,31 +49,39 @@ public class PlaidFinanceService {
 
     public void exchangePublicToken(String publicToken, String token) throws Exception {
 
-        var user = userRepository.findByEmail(jwtService.getEmailFromToken(token)).orElse(null);
+        var user = userRepository.findByEmail(jwtService.getEmailFromToken(jwtService.formatToken(token))).orElse(null);
         if(user == null){
             throw new UserNotFoundException("User not found");
+        }
+        var userBankingInfo = userBankingRepository.findById(user.getId()).orElse(null);
+        if(userBankingInfo == null){
+            throw new UserInfoNotFound("User not found");
         }
         var response = sendPostRequest(objectMapper.writeValueAsString(createExchangePublicToken(publicToken)), "item/public_token/exchange");
         if (response == null) {
             throw new FailedPlaidRequest("Could not create token");
         }
         ExchangePublicTokenResponseDto responseMap = objectMapper.readValue(response.body(), ExchangePublicTokenResponseDto.class);
-        user.setAccessToken(responseMap.getAccessToken());
-        user.setAccountLinkStatus(UserLinkStatus.LINKED);
+        userBankingInfo.setAccessToken(responseMap.getAccessToken());
+        userBankingInfo.setAccountLinkStatus(UserLinkStatus.LINKED);
         userRepository.save(user);
     }
 
     public String getAccountInformation(String token) throws JsonProcessingException {
-        var user  = userRepository.findByEmail(jwtService.getEmailFromToken(token)).orElse(null);
+        var user  = userRepository.findByEmail(jwtService.getEmailFromToken(jwtService.formatToken(token))).orElse(null);
         if(user == null){
             throw new UserNotFoundException("User not found");
         }
         var userId = user.getId();
         String jedisRequest = jedis.get("user-id-" + userId);
         if (jedisRequest == null) {
+            var userBankingInfo = userBankingRepository.findById(userId).orElse(null);
+            if(userBankingInfo == null){
+                throw new UserNotFoundException("User banking information found");
+            }
             var accountInfoRequest = AccountInformationRequestDto
                     .builder()
-                    .accessToken(user.getAccessToken())
+                    .accessToken(userBankingInfo.getAccessToken())
                     .clientId(plaidCredentials.getClientId())
                     .secret(plaidCredentials.getSecretKey())
                     .build();

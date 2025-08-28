@@ -44,7 +44,7 @@ public class PostmarkEmailService implements EmailService {
                     .productName("wealthwise")
                     .loginUrl("http://localhost:5173/login")
                     .actionUrl("http://localhost:5173/link")
-                    .username("to")
+                    .username(to)
                     .build();
 
             registerMessageTemplate.setHeaders(postmarkEmailUtility.registryHeaders());

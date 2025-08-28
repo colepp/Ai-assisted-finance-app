@@ -39,6 +39,13 @@ public class JwtService {
         }
     }
 
+    public String formatToken(String token) {
+        if(token == null || !token.startsWith("Bearer ")){
+            return null;
+        }
+        return token.replace("Bearer ", "");
+    }
+
     public String getEmailFromToken(String token) {
         return getClaimsFromToken(token).getSubject();
     }
