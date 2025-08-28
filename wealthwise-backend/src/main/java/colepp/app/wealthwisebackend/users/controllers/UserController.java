@@ -60,8 +60,9 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/register")
+    @PostMapping("/register_email")
     public ResponseEntity<Void> sendRegisterEmail(@RequestHeader("Authorization") String token) {
+        System.out.println("Registering Email");
         userService.sendRegistrationEmail(token);
         return ResponseEntity.ok().build();
     }

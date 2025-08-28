@@ -9,7 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "users", schema = "wealthwise_db")
+@Table(name = "users", schema = "wealthwisedb")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,23 +25,11 @@ public class User {
     @Column(name = "password")
     private String password;
 
-
-    @Column(name = "access_token")
-    private String accessToken;
-
-
-
-    @Column(name = "verification_status")
-    @Enumerated(EnumType.STRING)
-    private UserVerificationStatus verificationStatus = UserVerificationStatus.UNVERIFIED;
-
-
-
-    @Column(name = "account_link_status")
-    @Enumerated(EnumType.STRING)
-    private UserLinkStatus accountLinkStatus = UserLinkStatus.LINK_STATUS_NOT_CREATED;
-
     @Column(name = "phone_number")
     private String phoneNumber;
+
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE)
+    private UserBanking userBanking;
 
 }

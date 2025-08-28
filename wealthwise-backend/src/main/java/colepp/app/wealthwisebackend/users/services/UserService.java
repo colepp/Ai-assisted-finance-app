@@ -12,6 +12,7 @@ import colepp.app.wealthwisebackend.users.excpetions.AccountExistException;
 import colepp.app.wealthwisebackend.users.excpetions.UserNotFoundException;
 import colepp.app.wealthwisebackend.users.mappers.UserMapper;
 import colepp.app.wealthwisebackend.users.repositories.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -58,6 +59,7 @@ public class UserService implements UserDetailsService {
 
     }
 
+    @Transactional
     public UserDto registerUser(RegisterUserDto request){
 
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -88,12 +90,12 @@ public class UserService implements UserDetailsService {
     }
 
     public void sendRegistrationEmail(String token) {
-        var email = jwtService.getEmailFromToken(token);
+        var email = jwtService.getEmailFromToken(jwtService.formatToken(token));
         var user = userRepository.findByEmail(email).orElse(null);
         if(user == null){
             throw new UserNotFoundException("User not found");
         }
-        emailService.sendRegistrationMessage(user.getName(),email,"","WWReg");
+        emailService.sendRegistrationMessage(user.getName(),email,"palmorecp@beloit.edu","WWReg");
 
     }
 
