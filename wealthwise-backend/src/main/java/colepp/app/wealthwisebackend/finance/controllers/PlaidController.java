@@ -2,7 +2,10 @@ package colepp.app.wealthwisebackend.finance.controllers;
 
 
 import colepp.app.wealthwisebackend.common.dtos.ErrorDto;
-import colepp.app.wealthwisebackend.finance.dtos.ExchangePublicTokenRequestDto;
+import colepp.app.wealthwisebackend.finance.dtos.AccountInformationResponse;
+import colepp.app.wealthwisebackend.finance.dtos.AccountTransactionInformationResponse;
+import colepp.app.wealthwisebackend.finance.dtos.ExchangePublicTokenRequest;
+import colepp.app.wealthwisebackend.finance.dtos.MonthlyFinanceSummary;
 import colepp.app.wealthwisebackend.finance.exceptions.FailedPlaidRequest;
 import colepp.app.wealthwisebackend.finance.exceptions.PlaidCreateLinkTokenException;
 import colepp.app.wealthwisebackend.finance.services.PlaidFinanceService;
@@ -38,10 +41,11 @@ public class PlaidController {
         return null;
     }
 
-    @PostMapping("/account_info")
-    public ResponseEntity<String> getAccountInformation(@RequestHeader("Authorization") String token) throws JsonProcessingException {
-        String str = plaidFinanceService.getAccountInformation(token);
-        return ResponseEntity.ok().body(str);
+    @GetMapping("/transaction_info")
+    public ResponseEntity<AccountTransactionInformationResponse> getTransactionInformation(@RequestHeader("Authorization") String token) throws JsonProcessingException {
+        AccountTransactionInformationResponse transactionInformation  = plaidFinanceService.getTransactionalInformation(token);
+        return ResponseEntity.ok().body(transactionInformation);
+    }
     }
 
     @ExceptionHandler(UserNotFoundException.class)

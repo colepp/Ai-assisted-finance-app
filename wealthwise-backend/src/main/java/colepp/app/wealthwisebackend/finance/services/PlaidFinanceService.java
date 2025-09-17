@@ -97,6 +97,55 @@ public class PlaidFinanceService {
         return jedisRequest;
     }
 
+    public AccountTransactionInformationResponse getTransactionalInformation(String token) throws JsonProcessingException {
+        var user = userRepository.findByEmail(jwtService.getEmailFromToken(jwtService.formatToken(token))).orElse(null);
+        if(user == null){
+            throw new UserNotFoundException("User not found");
+        }
+        var userId = user.getId();
+        String redisRequest = jedis.get("user-id-transactions-" + userId);
+        if (redisRequest == null) {
+            var userBankingInfo = userBankingRepository.findById(userId).orElse(null);
+            if(userBankingInfo == null){
+                throw new UserNotFoundException("User banking information found");
+            }
+            var transactionInfoRequest = AccountTransactionInformationRequest.builder()
+                .accessToken(userBankingInfo.getAccessToken())
+                .clientId(plaidCredentials.getClientId())
+                .secret(plaidCredentials.getSecretKey())
+                .startDate(formatter.format(defaultStartDate))
+                .endDate(formatter.format(LocalDate.now()))
+                .build();
+            System.out.println(transactionInfoRequest);
+            var response = sendPostRequest(objectMapper.writeValueAsString(transactionInfoRequest),"/transactions/get");
+            if(response == null){
+                throw new FailedPlaidRequest("Could not get transaction information");
+            }
+            AccountTransactionInformationResponse transactions = objectMapper.readValue(response.body(), AccountTransactionInformationResponse.class);
+            jedis.set("user-id-transactions-" + userId, objectMapper.writeValueAsString(transactions));
+            jedis.expire("user-id-transactions-" + userId, expireTime);
+            return transactions;
+        }
+        return objectMapper.readValue(redisRequest, AccountTransactionInformationResponse.class);
+    }
+
+    public MonthlyFinanceSummary createMonthlyFinanceSummary(String token) throws JsonProcessingException {
+        var transactions = getTransactionalInformation(token);
+        var accounts = getAccountInformation(token);
+        var sortedCategories = FinanceTools.categorizeAllTransactions(transactions.getTransactions());
+        System.out.println(sortedCategories);
+
+        return new MonthlyFinanceSummary(accounts,transactions);
+    }
+
+    public UserBanking getUserBankInformation(User user){
+        UserBanking userBankingInfo = userBankingRepository.findById(user.getId()).orElse(null);
+        if(userBankingInfo == null){
+            throw new UserInfoNotFound("User not found");
+        }
+        return userBankingInfo;
+    }
+
     public HttpResponse<String> sendPostRequest(String requestJson,String url){
         try{
             HttpRequest postRequest = HttpRequest.newBuilder()
