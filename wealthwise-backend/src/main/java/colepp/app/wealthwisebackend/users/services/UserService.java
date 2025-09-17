@@ -8,9 +8,11 @@ import colepp.app.wealthwisebackend.users.dtos.RegisterUserDto;
 import colepp.app.wealthwisebackend.users.dtos.UpdateUserDto;
 import colepp.app.wealthwisebackend.users.dtos.UserDto;
 import colepp.app.wealthwisebackend.users.entities.User;
+import colepp.app.wealthwisebackend.users.entities.UserBanking;
 import colepp.app.wealthwisebackend.users.excpetions.AccountExistException;
 import colepp.app.wealthwisebackend.users.excpetions.UserNotFoundException;
 import colepp.app.wealthwisebackend.users.mappers.UserMapper;
+import colepp.app.wealthwisebackend.users.repositories.UserBankingRepository;
 import colepp.app.wealthwisebackend.users.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +36,7 @@ public class UserService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
     private final JwtService jwtService;
-
+    private final UserBankingRepository userBankingRepository;
 
 
     public User getUser(Long id){
@@ -68,7 +70,13 @@ public class UserService implements UserDetailsService {
 
         var user = userMapper.registerUserDtoToUser(request);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        var userBankingInfo = new UserBanking();
+        userBankingInfo.setUser(user);
+        user.setUserBanking(userBankingInfo);
+
         userRepository.save(user);
+        userBankingRepository.save(userBankingInfo);
 
         return userMapper.userToUserDto(user);
     }

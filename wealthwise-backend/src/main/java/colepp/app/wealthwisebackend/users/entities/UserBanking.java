@@ -16,15 +16,11 @@ public class UserBanking {
     @MapsId
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id")
-    private User users;
-
+    private User user;
 
     @Column(name = "access_token")
     private String accessToken;
 
-    @Column(name = "verification_status")
-    @Enumerated(EnumType.STRING)
-    private UserVerificationStatus verificationStatus = UserVerificationStatus.UNVERIFIED;
 
     @Column(name = "account_link_status")
     @Enumerated(EnumType.STRING)

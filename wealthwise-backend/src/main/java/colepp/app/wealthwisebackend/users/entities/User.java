@@ -28,6 +28,9 @@ public class User {
     @Column(name = "phone_number")
     private String phoneNumber;
 
+    @Column(name = "verification_status")
+    @Enumerated(EnumType.STRING)
+    private UserVerificationStatus verificationStatus = UserVerificationStatus.UNVERIFIED;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE)
     private UserBanking userBanking;
