@@ -1,5 +1,5 @@
 
-import React, {useEffect} from 'react';
+import {useEffect} from 'react';
 import { getCookie } from '../Utils/Utils';
 
 
@@ -24,33 +24,37 @@ export default function VerifyEmail() {
             }
           });
           const data = await response.json();
+          console.log("Verification email sent:", data);
         } catch (error) {
           console.error("Error sending email:", error);
         }
-    };
-    sendEmail();
-  }, []);
+      };
+      sendEmail();
+    }, []);
 
-  const resendVerificationEmail = async () => {
-    console.log("Resending Verification Email");
-    const authToken = getCookie("auth-token");
-    if (authToken === null) {
-      console.log("User Not Valid Or Token Expired");
-      return;
-    }
-    try {
-      const response = await fetch("http://localhost:8080/users/register_email", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${authToken}`
-        }
-      });
-      const data = await response.json();
-    } catch (error) {
-      console.error("Error resending email:", error);
-    }
-  };
+  // Function to resend verification email
+  // const resendVerificationEmail = async () => {
+  //   console.log("Resending Verification Email");
+  //   const authToken = getCookie("auth-token");
+  //   if (authToken === null) {
+  //     console.log("User Not Valid Or Token Expired");
+  //     return;
+  //   }
+
+  //   try {
+  //     const response = await fetch("http://localhost:8080/users/register_email", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         "Authorization": `Bearer ${authToken}`
+  //       }
+  //     });
+  //     const data = await response.json();
+  //     console.log("Verification email resent:", data);
+  //   } catch (error) {
+  //     console.error("Error resending email:", error);
+  //   }
+  // };
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100 dark:bg-gray-900">
