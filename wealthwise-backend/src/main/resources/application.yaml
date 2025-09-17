@@ -27,8 +27,8 @@ postmark:
   client-id: ${POSTMARK_CLIENT_KEY}
 
 gemini:
-  client-id: ${GEMINI_API_KEY}
-  product-number: ${GEMINI_PRODUCT_NUMBER}
+
+
 
 openAI:
   client-id: ${OPENAI_SECRET_KEY}
