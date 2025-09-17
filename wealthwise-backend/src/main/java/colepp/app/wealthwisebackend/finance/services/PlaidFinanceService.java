@@ -37,16 +37,22 @@ import java.time.format.DateTimeFormatter;
 public class PlaidFinanceService {
 
     private final PlaidCredentials plaidCredentials;
-    private final UserRepository userRepository;
     private final HttpClient httpClient;
-    private final ObjectMapper objectMapper;
     private final Jedis jedis;
+
+    private final UserRepository userRepository;
+    private final UserBankingRepository userBankingRepository;
+
+
+    private final ObjectMapper objectMapper;
+
+
     private final int expireTime = 1800;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private final LocalDate defaultStartDate = LocalDate.now().minusDays(30);
 
     private final JwtService jwtService;
-    private final UserBankingRepository userBankingRepository;
+
 
     public String createLinkToken(String token) throws Exception{
         var user = createPlaidUser(jwtService.getEmailFromToken(jwtService.formatToken(token)));
@@ -56,38 +62,35 @@ public class PlaidFinanceService {
     }
 
     public void exchangePublicToken(String publicToken, String token) throws Exception {
+        var user = userRepository.findByEmail(jwtService.getEmailFromToken(jwtService.formatToken(publicToken))).orElse(null);
+        if (user == null) {
+            throw new UserNotFoundException("User Not Found");
+        }
+        var userBankingInfo = getUserBankInformation(user);
 
-        var user = userRepository.findByEmail(jwtService.getEmailFromToken(jwtService.formatToken(token))).orElse(null);
-        if(user == null){
-            throw new UserNotFoundException("User not found");
-        }
-        var userBankingInfo = userBankingRepository.findById(user.getId()).orElse(null);
-        if(userBankingInfo == null){
-            throw new UserInfoNotFound("User not found");
-        }
         var response = sendPostRequest(objectMapper.writeValueAsString(createExchangePublicToken(publicToken)), "item/public_token/exchange");
         if (response == null) {
             throw new FailedPlaidRequest("Could not create token");
         }
-        ExchangePublicTokenResponseDto responseMap = objectMapper.readValue(response.body(), ExchangePublicTokenResponseDto.class);
+        ExchangePublicTokenResponse responseMap = objectMapper.readValue(response.body(), ExchangePublicTokenResponse.class);
         userBankingInfo.setAccessToken(responseMap.getAccessToken());
         userBankingInfo.setAccountLinkStatus(UserLinkStatus.LINKED);
         userRepository.save(user);
     }
 
-    public String getAccountInformation(String token) throws JsonProcessingException {
+    public AccountInformationResponse getAccountInformation(String token) throws JsonProcessingException {
         var user  = userRepository.findByEmail(jwtService.getEmailFromToken(jwtService.formatToken(token))).orElse(null);
         if(user == null){
             throw new UserNotFoundException("User not found");
         }
         var userId = user.getId();
-        String jedisRequest = jedis.get("user-id-" + userId);
-        if (jedisRequest == null) {
+        String redisRequest = jedis.get("user-id-" + userId);
+        if (redisRequest == null) {
             var userBankingInfo = userBankingRepository.findById(userId).orElse(null);
             if(userBankingInfo == null){
                 throw new UserNotFoundException("User banking information found");
             }
-            var accountInfoRequest = AccountInformationRequestDto
+            var accountInfoRequest = AccountInformationRequest
                     .builder()
                     .accessToken(userBankingInfo.getAccessToken())
                     .clientId(plaidCredentials.getClientId())
@@ -97,12 +100,16 @@ public class PlaidFinanceService {
             if(response == null){
                 throw new FailedPlaidRequest("Could not get account information");
             }
+            System.out.println("ACCOUNT INFORMATION: ");
             System.out.println(response.body());
-            jedis.set("user-id" + userId, response.body());
+            jedis.set("user-id-" + userId, response.body());
             jedis.expire("user-id-" + userId, expireTime);
-            return response.body();
+            var mapped = objectMapper.readValue(response.body(), AccountInformationResponse.class);
+            System.out.println("Mapped value: ");
+            System.out.println(mapped);
+            return mapped;
         }
-        return jedisRequest;
+        return objectMapper.readValue(redisRequest, AccountInformationResponse.class);
     }
 
     public AccountTransactionInformationResponse getTransactionalInformation(String token) throws JsonProcessingException {
@@ -167,9 +174,9 @@ public class PlaidFinanceService {
         }
     }
 
-    public PlaidUserInfoDto createPlaidUser(String userEmail){
+    public PlaidUserInfo createPlaidUser(String userEmail){
 
-        PlaidUserInfoDto userInfo = new PlaidUserInfoDto();
+        PlaidUserInfo userInfo = new PlaidUserInfo();
 
         var user = userRepository.findByEmail(userEmail).orElse(null);
         if(user == null){
@@ -180,8 +187,8 @@ public class PlaidFinanceService {
         return userInfo;
     }
 
-    public CreateLinkTokenRequestDto createLinkTokenRequest(PlaidUserInfoDto user){
-        return CreateLinkTokenRequestDto
+    public CreateLinkTokenRequest createLinkTokenRequest(PlaidUserInfo user){
+        return CreateLinkTokenRequest
                 .builder()
                 .clientId(plaidCredentials.getClientId())
                 .secret(plaidCredentials.getSecretKey())
@@ -193,18 +200,12 @@ public class PlaidFinanceService {
                 .build();
     }
 
-    public ExchangePublicTokenDto createExchangePublicToken(String publicToken){
-        return ExchangePublicTokenDto
+    public ExchangePublicToken createExchangePublicToken(String publicToken){
+        return ExchangePublicToken
                 .builder()
                 .secret(plaidCredentials.getSecretKey())
                 .clientId(plaidCredentials.getClientId())
                 .publicToken(publicToken)
                 .build();
     }
-
-
-
-
-
-
 }

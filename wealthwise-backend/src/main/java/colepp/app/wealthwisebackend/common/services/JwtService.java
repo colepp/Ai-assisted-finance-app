@@ -51,6 +51,7 @@ public class JwtService {
     }
 
     public Claims getClaimsFromToken(String token) {
+        System.out.println(token);
         return Jwts.parser()
                 .verifyWith(Keys.hmacShaKeyFor(secret.getBytes()))
                 .build()
