@@ -51,7 +51,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(c -> c
                                 .requestMatchers(HttpMethod.POST,"/users/**").permitAll()
                                 .requestMatchers(HttpMethod.POST,"/auth/login").permitAll()
-                                .requestMatchers(HttpMethod.POST,"/plaid/api/**").permitAll()
+                                .requestMatchers(HttpMethod.GET,"/plaid/api/**").permitAll()
 
                         )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

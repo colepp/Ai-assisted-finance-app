@@ -35,7 +35,7 @@ public class PlaidController {
     }
 
     @PostMapping("/exchange_public_token")
-    public ResponseEntity<String> exchangePublicToken(@RequestBody ExchangePublicTokenRequestDto request,@RequestHeader("Authorization") String token) throws Exception {
+    public ResponseEntity<String> exchangePublicToken(@RequestBody ExchangePublicTokenRequest request, @RequestHeader("Authorization") String token) throws Exception {
         System.out.println(request.getPublicToken());
         plaidFinanceService.exchangePublicToken(request.getPublicToken(),token);
         return null;
