@@ -1,6 +1,6 @@
 import '../index.css'
 import React, {use, useState} from 'react';
-import {setCookie, getCookie, redirect} from '../Utils/Utils';
+import { getCookie} from "../Utils/Utils.tsx";
 import '../../public/wealth-wise-log.svg'
 import Footer from "../PageComponents/Footer.tsx";
 import Header from "../PageComponents/Header.tsx";
@@ -64,8 +64,13 @@ export default function RegisterPage(){
         });
         const data = await response.json();
         console.log(data);
-        setCookie('auth-token',data.token);
-        navigate("/verify");
+        if(data.message){
+            console.console.error(`${data.message}: ${data.timestamp}`);
+            
+        }else{
+            setCookie('auth-token',data.token);
+            navigate("/verify");
+        }
       }catch(e){
         console.log(e);
       }

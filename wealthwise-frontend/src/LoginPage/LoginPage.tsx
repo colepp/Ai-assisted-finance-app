@@ -1,6 +1,6 @@
 import '../index.css'
 import { useState, type SetStateAction } from 'react';
-import { setCookie, getCookie } from '../Utils/Utils';
+import { setCookie} from '../Utils/Utils';
 import '../../public/wealth-wise-log.svg'
 import Header from "../PageComponents/Header.tsx";
 import Footer from "../PageComponents/Footer.tsx";
