@@ -36,23 +36,107 @@ import java.time.format.DateTimeFormatter;
 @RequiredArgsConstructor
 public class PlaidFinanceService {
 
+    // Plaid Stuff
     private final PlaidCredentials plaidCredentials;
     private final HttpClient httpClient;
-    private final Jedis jedis;
 
+
+    // Repository/Database related
     private final UserRepository userRepository;
     private final UserBankingRepository userBankingRepository;
+    private final Jedis redis;
 
-
+    // Mapping for all these Dtos... might have to actually make my own mapper soon but it will do for now.
     private final ObjectMapper objectMapper;
 
-
-    private final int expireTime = 1800;
+    // Default Values (may make these env vars later)
+    private final int expireTime = 1800; // double check if this works lol
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private final LocalDate defaultStartDate = LocalDate.now().minusDays(30);
 
+    // Services
     private final JwtService jwtService;
 
+    public AccountInformationResponse getAccountInformation(String token) throws JsonProcessingException {
+        var user  = userRepository.findByEmail(jwtService.getEmailFromToken(jwtService.formatToken(token))).orElse(null);
+        if(user == null){
+            throw new UserNotFoundException("User not found");
+        }
+        var userId = user.getId();
+        String redisRequest = redis.get("user-id-" + userId);
+        if (redisRequest == null) {
+            var userBankingInfo = userBankingRepository.findById(userId).orElse(null);
+            if(userBankingInfo == null){
+                throw new UserNotFoundException("User banking information found");
+            }
+            var accountInfoRequest = AccountInformationRequest
+                    .builder()
+                    .accessToken(userBankingInfo.getAccessToken())
+                    .clientId(plaidCredentials.getClientId())
+                    .secret(plaidCredentials.getSecretKey())
+                    .build();
+            var response = sendPostRequest(objectMapper.writeValueAsString(accountInfoRequest),"auth/get");
+            if(response == null){
+                throw new FailedPlaidRequest("Could not get account information");
+            }
+            System.out.println("ACCOUNT INFORMATION: ");
+            System.out.println(response.body());
+            redis.set("user-id-" + userId, response.body());
+            redis.expire("user-id-" + userId, expireTime);
+            var mapped = objectMapper.readValue(response.body(), AccountInformationResponse.class);
+            System.out.println("Mapped value: ");
+            System.out.println(mapped);
+            return mapped;
+        }
+        return objectMapper.readValue(redisRequest, AccountInformationResponse.class);
+    }
+
+    public AccountTransactionInformationResponse getTransactionalInformation(String token) throws JsonProcessingException {
+        var user = userRepository.findByEmail(jwtService.getEmailFromToken(jwtService.formatToken(token))).orElse(null);
+        if(user == null){
+            throw new UserNotFoundException("User not found");
+        }
+        var userId = user.getId();
+        String redisRequest = redis.get("user-id-transactions-" + userId);
+        if (redisRequest == null) {
+            var userBankingInfo = userBankingRepository.findById(userId).orElse(null);
+            if(userBankingInfo == null){
+                throw new UserNotFoundException("User banking information found");
+            }
+            var transactionInfoRequest = AccountTransactionInformationRequest.builder()
+                .accessToken(userBankingInfo.getAccessToken())
+                .clientId(plaidCredentials.getClientId())
+                .secret(plaidCredentials.getSecretKey())
+                .startDate(formatter.format(defaultStartDate))
+                .endDate(formatter.format(LocalDate.now()))
+                .build();
+            System.out.println(transactionInfoRequest);
+            var response = sendPostRequest(objectMapper.writeValueAsString(transactionInfoRequest),"/transactions/get");
+            if(response == null){
+                throw new FailedPlaidRequest("Could not get transaction information");
+            }
+            AccountTransactionInformationResponse transactions = objectMapper.readValue(response.body(), AccountTransactionInformationResponse.class);
+            redis.set("user-id-transactions-" + userId, objectMapper.writeValueAsString(transactions));
+            redis.expire("user-id-transactions-" + userId, expireTime);
+            return transactions;
+        }
+        return objectMapper.readValue(redisRequest, AccountTransactionInformationResponse.class);
+    }
+
+    public MonthlyFinanceSummary createMonthlyFinanceSummary(String token) throws JsonProcessingException {
+        var transactions = getTransactionalInformation(token);
+        var accounts = getAccountInformation(token);
+        var sortedCategories = FinanceTools.categorizeAllTransactions(transactions.getTransactions());
+        System.out.println(sortedCategories);
+
+        return new MonthlyFinanceSummary(accounts,transactions);
+    }
+
+    /*
+    * ALL FUNCTIONS BELOW ARE RELATED TO THE PROCESS OF LINKING THE USER TO A PLAID ACCOUNT
+    *
+    *
+    *  */
 
     public String createLinkToken(String token) throws Exception{
         var user = createPlaidUser(jwtService.getEmailFromToken(jwtService.formatToken(token)));
@@ -76,81 +160,6 @@ public class PlaidFinanceService {
         userBankingInfo.setAccessToken(responseMap.getAccessToken());
         userBankingInfo.setAccountLinkStatus(UserLinkStatus.LINKED);
         userRepository.save(user);
-    }
-
-    public AccountInformationResponse getAccountInformation(String token) throws JsonProcessingException {
-        var user  = userRepository.findByEmail(jwtService.getEmailFromToken(jwtService.formatToken(token))).orElse(null);
-        if(user == null){
-            throw new UserNotFoundException("User not found");
-        }
-        var userId = user.getId();
-        String redisRequest = jedis.get("user-id-" + userId);
-        if (redisRequest == null) {
-            var userBankingInfo = userBankingRepository.findById(userId).orElse(null);
-            if(userBankingInfo == null){
-                throw new UserNotFoundException("User banking information found");
-            }
-            var accountInfoRequest = AccountInformationRequest
-                    .builder()
-                    .accessToken(userBankingInfo.getAccessToken())
-                    .clientId(plaidCredentials.getClientId())
-                    .secret(plaidCredentials.getSecretKey())
-                    .build();
-            var response = sendPostRequest(objectMapper.writeValueAsString(accountInfoRequest),"auth/get");
-            if(response == null){
-                throw new FailedPlaidRequest("Could not get account information");
-            }
-            System.out.println("ACCOUNT INFORMATION: ");
-            System.out.println(response.body());
-            jedis.set("user-id-" + userId, response.body());
-            jedis.expire("user-id-" + userId, expireTime);
-            var mapped = objectMapper.readValue(response.body(), AccountInformationResponse.class);
-            System.out.println("Mapped value: ");
-            System.out.println(mapped);
-            return mapped;
-        }
-        return objectMapper.readValue(redisRequest, AccountInformationResponse.class);
-    }
-
-    public AccountTransactionInformationResponse getTransactionalInformation(String token) throws JsonProcessingException {
-        var user = userRepository.findByEmail(jwtService.getEmailFromToken(jwtService.formatToken(token))).orElse(null);
-        if(user == null){
-            throw new UserNotFoundException("User not found");
-        }
-        var userId = user.getId();
-        String redisRequest = jedis.get("user-id-transactions-" + userId);
-        if (redisRequest == null) {
-            var userBankingInfo = userBankingRepository.findById(userId).orElse(null);
-            if(userBankingInfo == null){
-                throw new UserNotFoundException("User banking information found");
-            }
-            var transactionInfoRequest = AccountTransactionInformationRequest.builder()
-                .accessToken(userBankingInfo.getAccessToken())
-                .clientId(plaidCredentials.getClientId())
-                .secret(plaidCredentials.getSecretKey())
-                .startDate(formatter.format(defaultStartDate))
-                .endDate(formatter.format(LocalDate.now()))
-                .build();
-            System.out.println(transactionInfoRequest);
-            var response = sendPostRequest(objectMapper.writeValueAsString(transactionInfoRequest),"/transactions/get");
-            if(response == null){
-                throw new FailedPlaidRequest("Could not get transaction information");
-            }
-            AccountTransactionInformationResponse transactions = objectMapper.readValue(response.body(), AccountTransactionInformationResponse.class);
-            jedis.set("user-id-transactions-" + userId, objectMapper.writeValueAsString(transactions));
-            jedis.expire("user-id-transactions-" + userId, expireTime);
-            return transactions;
-        }
-        return objectMapper.readValue(redisRequest, AccountTransactionInformationResponse.class);
-    }
-
-    public MonthlyFinanceSummary createMonthlyFinanceSummary(String token) throws JsonProcessingException {
-        var transactions = getTransactionalInformation(token);
-        var accounts = getAccountInformation(token);
-        var sortedCategories = FinanceTools.categorizeAllTransactions(transactions.getTransactions());
-        System.out.println(sortedCategories);
-
-        return new MonthlyFinanceSummary(accounts,transactions);
     }
 
     public UserBanking getUserBankInformation(User user){

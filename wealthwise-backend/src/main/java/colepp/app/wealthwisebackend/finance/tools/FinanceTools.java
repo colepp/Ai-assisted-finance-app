@@ -11,29 +11,29 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public final class FinanceTools {
+public abstract class FinanceTools {
 
     public static double TotalIncome(List<Transaction> transactions) {
         return transactions.stream()
-            .filter(transaction -> transaction.getAmount() > 0)
-            .mapToDouble(Transaction::getAmount)
-            .sum();
+                .filter(transaction -> transaction.getAmount() > 0)
+                .mapToDouble(Transaction::getAmount)
+                .sum();
     }
 
     public static double TotalExpenses(List<Transaction> transactions) {
         return transactions.stream()
-            .filter(transaction -> transaction.getAmount() < 0)
-            .mapToDouble(Transaction::getAmount)
-            .sum();
+                .filter(transaction -> transaction.getAmount() < 0)
+                .mapToDouble(Transaction::getAmount)
+                .sum();
     }
 
     public static double MonthlyIncome(List<Transaction> transactions) {
         return transactions.stream()
-            .filter(transaction -> transaction.getAmount() > 0 && (
-                LocalDate.now().getMonth() == transaction.getAuthorizedDate().getMonth() &&
-                    LocalDate.now().getYear() == transaction.getAuthorizedDate().getYear()))
-            .mapToDouble(Transaction::getAmount)
-            .sum();
+                .filter(transaction -> transaction.getAmount() > 0 && (
+                        LocalDate.now().getMonth() == transaction.getAuthorizedDate().getMonth() &&
+                                LocalDate.now().getYear() == transaction.getAuthorizedDate().getYear()))
+                .mapToDouble(Transaction::getAmount)
+                .sum();
 
     }
 
@@ -86,7 +86,7 @@ public final class FinanceTools {
 
     public static double calculateTotalAccountsBalance(List<AccountDetails> accounts) {
         return accounts.stream()
-            .mapToDouble(account -> account.getBalances().getAvailable())
-            .sum();
+                .mapToDouble(account -> account.getBalances().getAvailable())
+                .sum();
     }
 }
