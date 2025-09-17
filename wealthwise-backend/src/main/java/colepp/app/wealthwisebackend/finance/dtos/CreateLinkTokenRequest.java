@@ -9,7 +9,7 @@ import java.util.List;
 
 @Data
 @Builder
-public class CreateLinkTokenRequestDto {
+public class CreateLinkTokenRequest {
 
     @NotBlank(message = "client key required")
     @JsonProperty("client_id")
@@ -19,7 +19,7 @@ public class CreateLinkTokenRequestDto {
     private String secret;
 
     @NotBlank(message = "user required")
-    private PlaidUserInfoDto user;
+    private PlaidUserInfo user;
 
     @NotBlank(message = "Client name required.")
     @JsonProperty("client_name")

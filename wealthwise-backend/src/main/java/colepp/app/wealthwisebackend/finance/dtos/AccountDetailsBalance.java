@@ -6,7 +6,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 @Data
-public class AccountDetailsBalanceDto {
+public class AccountDetailsBalance {
     @JsonProperty("available")
     private BigDecimal availableBalance;
 

@@ -1,5 +1,5 @@
 package colepp.app.wealthwisebackend.finance.dtos;
 
-public class CreateLinkTokenResponseDto {
+public class CreateLinkTokenResponse {
 
 }

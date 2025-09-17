@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class ExchangePublicTokenDto {
+public class ExchangePublicToken {
 
     @JsonProperty("client_id")
     private String clientId;

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class PlaidUserInfoDto {
+public class PlaidUserInfo {
 
     @JsonProperty("client_user_id")
     private String clientUserId;

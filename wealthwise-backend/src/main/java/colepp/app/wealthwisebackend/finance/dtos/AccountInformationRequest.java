@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class AccountInformationRequestDto {
+public class AccountInformationRequest {
 
     @JsonProperty("client_id")
     public String clientId;

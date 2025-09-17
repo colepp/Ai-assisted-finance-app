@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class ExchangePublicTokenRequestDto {
+public class ExchangePublicTokenRequest {
     @JsonProperty("public_token")
     private String publicToken;
 }
