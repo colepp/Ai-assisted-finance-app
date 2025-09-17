@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Footer from '../PageComponents/Footer';
 import Header from '../PageComponents/Header';
 import { getCookie } from "../Utils/Utils.tsx";

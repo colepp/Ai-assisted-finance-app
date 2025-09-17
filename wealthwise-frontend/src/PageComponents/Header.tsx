@@ -1,4 +1,4 @@
-import type {Navigation, Link} from "react-router-dom";
+
 export default function Header(){
 
     return(

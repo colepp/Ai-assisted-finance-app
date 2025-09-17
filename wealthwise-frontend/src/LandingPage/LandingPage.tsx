@@ -1,5 +1,5 @@
 
-import React from 'react';
+
 import Header from '../PageComponents/Header.tsx'// Assuming Header.tsx is in the same directory
 import Footer from '../PageComponents/Footer'; // Assuming Footer.tsx is in the same directory
 

@@ -1,15 +1,15 @@
 import '../index.css'
-import { useState, type SetStateAction } from 'react';
+import { useState} from 'react';
 import { setCookie} from '../Utils/Utils';
 import '../../public/wealth-wise-log.svg'
 import Header from "../PageComponents/Header.tsx";
-import Footer from "../PageComponents/Footer.tsx";
+
 
 export default function LoginPage(){
 
   const [email,setEmail] = useState('');
   const [password,setPassword] = useState('');
-  const [errorMessage,setErrorMessage] = useState('');
+  // const [errorMessage,setErrorMessage] = useState('');
 
 
   function handleEmailChange(event: React.ChangeEvent<HTMLInputElement>){

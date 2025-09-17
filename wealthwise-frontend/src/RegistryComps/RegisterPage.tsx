@@ -1,10 +1,10 @@
 import '../index.css'
-import React, {use, useState} from 'react';
-import { getCookie} from "../Utils/Utils.tsx";
+import React, {useState} from 'react';
 import '../../public/wealth-wise-log.svg'
 import Footer from "../PageComponents/Footer.tsx";
 import Header from "../PageComponents/Header.tsx";
 import {useNavigate} from "react-router-dom";
+import { setCookie } from '../Utils/Utils.tsx';
 
 export default function RegisterPage(){
 
@@ -19,7 +19,7 @@ export default function RegisterPage(){
   const [confirmPassword,setConfirmPassword] = useState('');
 
   
-  const [errorMessage,setErrorMessage] = useState('');
+//   const [errorMessage,setErrorMessage] = useState('');
 
   function handleFirstNameChange(event: React.ChangeEvent<HTMLInputElement>){
       setFirstName(event.target.value)
@@ -46,7 +46,7 @@ export default function RegisterPage(){
   }
   
   async function handleSignUp() {
-      const areaCode = document.getElementById('area-code')
+      const areaCode = document.getElementById('area-code') as HTMLSelectElement;
     
     try{
       const response = await fetch('http://localhost:8080/users', {
@@ -65,7 +65,7 @@ export default function RegisterPage(){
         const data = await response.json();
         console.log(data);
         if(data.message){
-            console.console.error(`${data.message}: ${data.timestamp}`);
+            console.error(`${data.message}: ${data.timestamp}`);
             
         }else{
             setCookie('auth-token',data.token);
