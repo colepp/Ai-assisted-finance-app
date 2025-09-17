@@ -6,6 +6,9 @@ import colepp.app.wealthwisebackend.finance.config.PlaidCredentials;
 import colepp.app.wealthwisebackend.finance.dtos.*;
 import colepp.app.wealthwisebackend.finance.exceptions.FailedPlaidRequest;
 
+import colepp.app.wealthwisebackend.finance.tools.FinanceTools;
+import colepp.app.wealthwisebackend.users.entities.User;
+import colepp.app.wealthwisebackend.users.entities.UserBanking;
 import colepp.app.wealthwisebackend.users.entities.UserLinkStatus;
 import colepp.app.wealthwisebackend.users.excpetions.UserInfoNotFound;
 import colepp.app.wealthwisebackend.users.excpetions.UserNotFoundException;
@@ -25,6 +28,8 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 @Slf4j
 @Service
@@ -37,6 +42,9 @@ public class PlaidFinanceService {
     private final ObjectMapper objectMapper;
     private final Jedis jedis;
     private final int expireTime = 1800;
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private final LocalDate defaultStartDate = LocalDate.now().minusDays(30);
+
     private final JwtService jwtService;
     private final UserBankingRepository userBankingRepository;
 
