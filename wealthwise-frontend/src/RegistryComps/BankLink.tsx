@@ -20,7 +20,7 @@ export default function BankLink() {
                 return;
             }
             try {
-                const response = await fetch("http://localhost:8080/plaid/api/create_link_token", {
+                const response = await fetch("/api/plaid/create_link_token", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -68,7 +68,7 @@ export default function BankLink() {
         if (publicToken) {
             const sendPublicToken = async () => {
                 try {
-                    const response = await fetch("http://localhost:8080/plaid/api/exchange_public_token", {
+                    const response = await fetch("/api/plaid/exchange_public_token", {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",

@@ -49,7 +49,7 @@ export default function RegisterPage(){
       const areaCode = document.getElementById('area-code') as HTMLSelectElement;
     
     try{
-      const response = await fetch('http://localhost:8080/users', {
+      const response = await fetch('/api/users', {
         method: 'POST',
         headers: {
                 'Content-Type': 'application/json',

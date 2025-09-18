@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import Footer from '../PageComponents/Footer';
 import Header from '../PageComponents/Header';
 import { getCookie } from "../Utils/Utils.tsx";
+import { redirect } from 'react-router-dom';
+
 
 interface Transaction {
   pending: boolean;
@@ -67,10 +69,14 @@ export default function Dashboard() {
 
   useEffect(() => {
     const fetchData = async () => {
-      console.log("fetching data");
+      let cookie = getCookie("auth-token");
+      if(cookie === undefined){
+        console.log("NIGGA YOU DUMB");
+        redirect("/");
+      }
       try {
         setLoading(true);
-        const response = await fetch('http://localhost:8080/plaid/api/monthly_summary', {
+        const response = await fetch('/api/wealthwise/monthly_summary', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

@@ -16,7 +16,7 @@ export default function VerifyEmail() {
       }
         try {
           console.log("attempting POST request");
-          const response = await fetch("http://localhost:8080/users/register_email", {
+          const response = await fetch("/api/users/register_email", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -32,29 +32,28 @@ export default function VerifyEmail() {
       sendEmail();
     }, []);
 
-  // Function to resend verification email
-  // const resendVerificationEmail = async () => {
-  //   console.log("Resending Verification Email");
-  //   const authToken = getCookie("auth-token");
-  //   if (authToken === null) {
-  //     console.log("User Not Valid Or Token Expired");
-  //     return;
-  //   }
+  const resendVerificationEmail = async () => {
+    console.log("Resending Verification Email");
+    const authToken = getCookie("auth-token");
+    if (authToken === null) {
+      console.log("User Not Valid Or Token Expired");
+      return;
+    }
 
-  //   try {
-  //     const response = await fetch("http://localhost:8080/users/register_email", {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         "Authorization": `Bearer ${authToken}`
-  //       }
-  //     });
-  //     const data = await response.json();
-  //     console.log("Verification email resent:", data);
-  //   } catch (error) {
-  //     console.error("Error resending email:", error);
-  //   }
-  // };
+    try {
+      const response = await fetch("/users/register_email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${authToken}`
+        }
+      });
+      const data = await response.json();
+      console.log("Verification email resent:", data);
+    } catch (error) {
+      console.error("Error resending email:", error);
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100 dark:bg-gray-900">
@@ -76,8 +75,9 @@ export default function VerifyEmail() {
             <p className="text-sm text-gray-500 dark:text-gray-400">
               Didn't receive the email?{' '}
               <a
-                href="/resend-verification"
+                onClick={resendVerificationEmail}
                 className="text-indigo-600 dark:text-indigo-400 hover:underline"
+                id="resend_button"
               >
                 Click here to resend
               </a>
