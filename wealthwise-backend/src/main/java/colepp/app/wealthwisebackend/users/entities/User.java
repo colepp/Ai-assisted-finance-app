@@ -35,4 +35,17 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE)
     private UserBanking userBanking;
 
+    public void formatUserDetails() {
+        formatEmail();
+        formatPhoneNumber();
+    }
+
+    public void formatEmail(){
+
+    }
+
+    public void formatPhoneNumber(){
+
+    }
+
 }

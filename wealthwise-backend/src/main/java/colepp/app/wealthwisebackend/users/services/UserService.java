@@ -10,6 +10,7 @@ import colepp.app.wealthwisebackend.users.dtos.UserDto;
 import colepp.app.wealthwisebackend.users.entities.User;
 import colepp.app.wealthwisebackend.users.entities.UserBanking;
 import colepp.app.wealthwisebackend.users.excpetions.AccountExistException;
+import colepp.app.wealthwisebackend.users.excpetions.PasswordMatchException;
 import colepp.app.wealthwisebackend.users.excpetions.UserNotFoundException;
 import colepp.app.wealthwisebackend.users.mappers.UserMapper;
 import colepp.app.wealthwisebackend.users.repositories.UserBankingRepository;
@@ -68,7 +69,12 @@ public class UserService implements UserDetailsService {
             throw new AccountExistException("Email already exists");
         }
 
+        if(!request.getPassword().equals(request.getConfirmPassword())){
+            throw new PasswordMatchException("Passwords do not match");
+        }
+
         var user = userMapper.registerUserDtoToUser(request);
+        user.setEmail(request.getEmail().toLowerCase());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         var userBankingInfo = new UserBanking();
