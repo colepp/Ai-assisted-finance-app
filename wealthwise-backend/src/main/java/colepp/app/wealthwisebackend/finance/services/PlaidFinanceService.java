@@ -123,15 +123,6 @@ public class PlaidFinanceService {
         return objectMapper.readValue(redisRequest, AccountTransactionInformationResponse.class);
     }
 
-    public MonthlyFinanceSummary createMonthlyFinanceSummary(String token) throws JsonProcessingException {
-        var transactions = getTransactionalInformation(token);
-        var accounts = getAccountInformation(token);
-        var sortedCategories = FinanceTools.categorizeAllTransactions(transactions.getTransactions());
-        System.out.println(sortedCategories);
-
-        return new MonthlyFinanceSummary(accounts,transactions);
-    }
-
     /*
     * ALL FUNCTIONS BELOW ARE RELATED TO THE PROCESS OF LINKING THE USER TO A PLAID ACCOUNT
     *

@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/plaid/api")
+@RequestMapping("/plaid/")
 public class PlaidController {
     private final PlaidFinanceService plaidFinanceService;
 
@@ -51,12 +51,6 @@ public class PlaidController {
     public ResponseEntity<AccountTransactionInformationResponse> getTransactionInformation(@RequestHeader("Authorization") String token) throws JsonProcessingException {
         AccountTransactionInformationResponse transactionInformation  = plaidFinanceService.getTransactionalInformation(token);
         return ResponseEntity.ok().body(transactionInformation);
-    }
-
-    @GetMapping("/monthly_summary")
-    public ResponseEntity<MonthlyFinanceSummary> getSummary(@RequestHeader("Authorization") String token) throws JsonProcessingException {
-        var monthlySummary = plaidFinanceService.createMonthlyFinanceSummary(token);
-        return ResponseEntity.ok().body(monthlySummary);
     }
 
     @ExceptionHandler(UserNotFoundException.class)
