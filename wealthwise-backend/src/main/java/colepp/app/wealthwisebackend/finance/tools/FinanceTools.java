@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class FinanceTools {
+public final class FinanceTools {
 
     public static double TotalIncome(List<Transaction> transactions) {
         return transactions.stream()
