@@ -5,7 +5,6 @@ import colepp.app.wealthwisebackend.finance.dtos.PersonalFinanceCategory;
 import colepp.app.wealthwisebackend.finance.dtos.Transaction;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,7 +26,13 @@ public final class FinanceTools {
                 .sum();
     }
 
-    public static double MonthlyIncome(List<Transaction> transactions) {
+    public static double totalAccountsBalance(List<AccountDetails> accounts) {
+        return accounts.stream()
+                .mapToDouble(account -> account.getBalances().getAvailable())
+                .sum();
+    }
+
+    public static double totalMonthlyIncome(List<Transaction> transactions) {
         return transactions.stream()
                 .filter(transaction -> transaction.getAmount() > 0 && (
                         LocalDate.now().getMonth() == transaction.getAuthorizedDate().getMonth() &&
@@ -37,7 +42,7 @@ public final class FinanceTools {
 
     }
 
-    public static double monthlyExpenses(List<Transaction> transactions) {
+    public static double totalMonthlyExpenses(List<Transaction> transactions) {
         return transactions.stream()
             .filter(transaction -> transaction.getAmount() < 0 && (
                 LocalDate.now().getMonth().equals(transaction.getAuthorizedDate().getMonth()) && LocalDate.now().getYear() == transaction.getAuthorizedDate().getYear()))
@@ -45,16 +50,7 @@ public final class FinanceTools {
             .sum();
     }
 
-    public static double monthlyExpenses(List<Transaction> transactions, Integer month, Integer year) {
-        return transactions.stream()
-            .filter(transaction -> transaction.getAmount() < 0 && (
-                month.equals(transaction.getAuthorizedDate().getMonth()) && year.equals(transaction.getAuthorizedDate().getYear()))
-            )
-            .mapToDouble(Transaction::getAmount)
-            .sum();
-    }
-
-    public static Map<String,List<Transaction>> categorizeAllTransactions(List<Transaction> transactions) {
+    public static Map<String,List<Transaction>> categorizeTransactions(List<Transaction> transactions) {
         Map<String,List<Transaction>> categorizedTransactions = new HashMap<>();
         for (Transaction transaction : transactions) {
             PersonalFinanceCategory category = transaction.getPersonalFinanceCategory();
@@ -69,24 +65,48 @@ public final class FinanceTools {
         return categorizedTransactions;
     }
 
-    public static Map<String,List<Transaction>> categorizeSpecificTransactions(List<Transaction> transactions,String targetCategory) {
+    public static Map<String,List<Transaction>> categorizeTransactions(List<Transaction> transactions,String targetCategory) {
         Map<String,List<Transaction>> categorizedTransactions = new HashMap<>();
-        for (Transaction transaction : transactions) {
+        transactions.forEach(transaction -> {
             PersonalFinanceCategory category = transaction.getPersonalFinanceCategory();
             if(category.getPrimary().equals(targetCategory)){
-                if(categorizedTransactions.isEmpty()){
-                    categorizedTransactions.put(category.getPrimary(), new ArrayList<>());
+                if(!categorizedTransactions.containsKey(category.getPrimary())){
+                    List<Transaction> transactionList = new ArrayList<>();
+                    transactionList.add(transaction);
+                    categorizedTransactions.put(category.getPrimary(), transactionList);
+                }else{
+                    categorizedTransactions.get(category.getPrimary()).add(transaction);
                 }
-                categorizedTransactions.get(category.getPrimary()).add(transaction);
             }
-        }
+        });
         return categorizedTransactions;
-
     }
 
-    public static double calculateTotalAccountsBalance(List<AccountDetails> accounts) {
-        return accounts.stream()
-                .mapToDouble(account -> account.getBalances().getAvailable())
-                .sum();
+    public static Map<Integer,List<Transaction>> categorizeTransactionsByYear(List<Transaction> accounts) {
+        Map<Integer,List<Transaction>> categorizedTransactions = new HashMap<>();
+        accounts.forEach(transaction -> {
+            int year = transaction.getAuthorizedDate().getYear();
+            if(categorizedTransactions.containsKey(year)){
+                categorizedTransactions.get(year).add(transaction);
+            }
+            else{
+                List<Transaction> transactionList = new ArrayList<>();
+                transactionList.add(transaction);
+                categorizedTransactions.put(year, transactionList);
+            }
+        });
+        return categorizedTransactions;
+    }
+
+    public static Map<Integer,List<Transaction>> categorizeTransactionsByYear(List<Transaction> accounts, int targetYear) {
+        Map<Integer,List<Transaction>> categorizedTransactions = new HashMap<>();
+        categorizedTransactions.put(targetYear,new ArrayList<>());
+        accounts.forEach(transaction -> {
+            int year = transaction.getAuthorizedDate().getYear();
+            if(year == targetYear){
+                categorizedTransactions.get(year).add(transaction);
+            }
+        });
+        return categorizedTransactions;
     }
 }

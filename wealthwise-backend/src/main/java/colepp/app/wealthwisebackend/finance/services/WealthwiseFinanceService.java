@@ -4,7 +4,6 @@ import colepp.app.wealthwisebackend.finance.dtos.MonthlyFinanceSummary;
 import colepp.app.wealthwisebackend.finance.tools.FinanceTools;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,7 +16,7 @@ public class WealthwiseFinanceService {
     public MonthlyFinanceSummary createMonthlyFinanceSummary(String token) throws JsonProcessingException {
         var transactions = plaidFinanceService.getTransactionalInformation(token);
         var accounts = plaidFinanceService.getAccountInformation(token);
-        var sortedCategories = FinanceTools.categorizeAllTransactions(transactions.getTransactions());
+        var sortedCategories = FinanceTools.categorizeTransactions(transactions.getTransactions());
         System.out.println(sortedCategories);
 
         return new MonthlyFinanceSummary(accounts,transactions);

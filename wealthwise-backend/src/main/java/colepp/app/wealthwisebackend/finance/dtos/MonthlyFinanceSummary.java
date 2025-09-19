@@ -21,7 +21,7 @@ public class MonthlyFinanceSummary {
             this.expense = 0;
         }else{
             this.income = FinanceTools.TotalIncome(transactions);
-            this.expense = FinanceTools.monthlyExpenses(transactions);
+            this.expense = FinanceTools.totalMonthlyExpenses(transactions);
         }
     }
 
@@ -34,7 +34,7 @@ public class MonthlyFinanceSummary {
         }
         else {
             this.income = FinanceTools.TotalIncome(transactionHistory.getTransactions());
-            this.expense = FinanceTools.monthlyExpenses(transactionHistory.getTransactions());
+            this.expense = FinanceTools.totalMonthlyExpenses(transactionHistory.getTransactions());
         }
     }
 

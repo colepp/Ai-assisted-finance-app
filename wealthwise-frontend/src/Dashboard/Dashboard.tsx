@@ -72,11 +72,10 @@ export default function Dashboard() {
 
   useEffect(() => {
     const fetchData = async () => {
-      let cookie = getCookie("auth-token");
-      if(cookie === undefined){
-        console.log("no auth");
+      let token = getCookie("auth-token");
+      if(!token){
+        console.error("No auth token found");
         nav("/login");
-        console.log("ignore");
       }else{
         try {
           setLoading(true);
@@ -84,7 +83,7 @@ export default function Dashboard() {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${getCookie("auth-token")}`,
+              'Authorization': `Bearer ${token}`,
             },
           });
           if (!response.ok) {
