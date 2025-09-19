@@ -3,7 +3,8 @@ import { useState, useEffect } from 'react';
 import Footer from '../PageComponents/Footer';
 import Header from '../PageComponents/Header';
 import { getCookie } from "../Utils/Utils.tsx";
-import { redirect } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+
 
 
 interface Transaction {
@@ -67,33 +68,38 @@ export default function Dashboard() {
     { id: 'accounts', label: 'Accounts' },
   ] as const;
 
+  const nav = useNavigate();
+
   useEffect(() => {
     const fetchData = async () => {
       let cookie = getCookie("auth-token");
       if(cookie === undefined){
-        console.log("NIGGA YOU DUMB");
-        redirect("/");
-      }
-      try {
-        setLoading(true);
-        const response = await fetch('/api/wealthwise/monthly_summary', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${getCookie("auth-token")}`,
-          },
-        });
-        if (!response.ok) {
-          throw new Error('Failed to fetch data');
+        console.log("no auth");
+        nav("/login");
+        console.log("ignore");
+      }else{
+        try {
+          setLoading(true);
+          const response = await fetch('/api/wealthwise/monthly_summary', {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${getCookie("auth-token")}`,
+            },
+          });
+          if (!response.ok) {
+            throw new Error('Failed to fetch data');
+          }
+          const data: ApiResponse = await response.json();
+          setApiData(data);
+        } catch (err) {
+          setError(err instanceof Error ? err.message : 'An error occurred');
+        } finally {
+          setLoading(false);
         }
-        const data: ApiResponse = await response.json();
-        setApiData(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-      } finally {
-        setLoading(false);
-      }
+    }
     };
+  
 
     fetchData();
   }, []);

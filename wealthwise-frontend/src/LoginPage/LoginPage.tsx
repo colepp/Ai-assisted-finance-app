@@ -3,6 +3,8 @@ import { useState} from 'react';
 import { setCookie} from '../Utils/Utils';
 import '../../public/wealth-wise-log.svg'
 import Header from "../PageComponents/Header.tsx";
+import { useNavigate } from 'react-router-dom';
+
 
 
 export default function LoginPage(){
@@ -10,6 +12,8 @@ export default function LoginPage(){
   const [email,setEmail] = useState('');
   const [password,setPassword] = useState('');
   // const [errorMessage,setErrorMessage] = useState('');
+
+  const nav = useNavigate();
 
 
   function handleEmailChange(event: React.ChangeEvent<HTMLInputElement>){
@@ -21,7 +25,6 @@ export default function LoginPage(){
   }
   
   async function loginRequest() {
-    
     try{
       const response = await fetch('/api/auth/login', {
         method: 'POST',
@@ -34,8 +37,8 @@ export default function LoginPage(){
             }),
         });
         const data = await response.json();
-        console.log(data);
         setCookie('auth-token',data.token);
+        nav("/dashboard");
       }catch(e){
         console.log(e);
       }

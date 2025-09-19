@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/plaid/")
+@RequestMapping("/plaid")
 public class PlaidController {
     private final PlaidFinanceService plaidFinanceService;
 

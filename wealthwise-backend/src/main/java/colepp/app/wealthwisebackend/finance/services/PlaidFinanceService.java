@@ -130,6 +130,7 @@ public class PlaidFinanceService {
     *  */
 
     public String createLinkToken(String token) throws Exception{
+        System.out.println("Creating link token");
         var user = createPlaidUser(jwtService.getEmailFromToken(jwtService.formatToken(token)));
         var linkTokenRequest = createLinkTokenRequest(user);
         var response = sendPostRequest(objectMapper.writeValueAsString(linkTokenRequest),"link/token/create");
