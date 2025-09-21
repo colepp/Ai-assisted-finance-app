@@ -3,7 +3,6 @@ package colepp.app.wealthwisebackend.finance.dtos;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -23,4 +22,5 @@ public class AccountTransactionInformationResponse {
 
     @JsonProperty
     private List<Transaction> transactions;
+
 }

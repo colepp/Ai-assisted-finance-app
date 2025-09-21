@@ -18,6 +18,9 @@ public class Transaction {
         @JsonProperty("transaction_id")
         private String transactionId;
 
+        @JsonProperty("account_id")
+        private String accountId;
+
         @JsonProperty("authorized_date")
         private LocalDate authorizedDate;
 
@@ -39,6 +42,7 @@ public class Transaction {
 
         @JsonProperty("iso_currency_code")
         private String isoCurrencyCode;
+
 
         public String getFormattedAuthorizedDate() {
             return authorizedDate != null ? authorizedDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) : null;

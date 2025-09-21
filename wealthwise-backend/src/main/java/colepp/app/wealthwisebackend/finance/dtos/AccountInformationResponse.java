@@ -6,7 +6,7 @@ import lombok.Data;
 
 import java.util.List;
 
-// COME BACK TO THIS!
+
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AccountInformationResponse {
