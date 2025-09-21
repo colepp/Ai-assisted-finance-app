@@ -5,7 +5,6 @@ import colepp.app.wealthwisebackend.common.dtos.ErrorDto;
 import colepp.app.wealthwisebackend.finance.dtos.AccountInformationResponse;
 import colepp.app.wealthwisebackend.finance.dtos.AccountTransactionInformationResponse;
 import colepp.app.wealthwisebackend.finance.dtos.ExchangePublicTokenRequest;
-import colepp.app.wealthwisebackend.finance.dtos.MonthlyFinanceSummary;
 import colepp.app.wealthwisebackend.finance.exceptions.FailedPlaidRequest;
 import colepp.app.wealthwisebackend.finance.exceptions.PlaidCreateLinkTokenException;
 import colepp.app.wealthwisebackend.finance.services.PlaidFinanceService;
@@ -49,7 +48,7 @@ public class PlaidController {
 
     @GetMapping("/transaction_info")
     public ResponseEntity<AccountTransactionInformationResponse> getTransactionInformation(@RequestHeader("Authorization") String token) throws JsonProcessingException {
-        AccountTransactionInformationResponse transactionInformation  = plaidFinanceService.getTransactionalInformation(token);
+        AccountTransactionInformationResponse transactionInformation  = plaidFinanceService.getMonthlyTransactionalInformation(token);
         return ResponseEntity.ok().body(transactionInformation);
     }
 

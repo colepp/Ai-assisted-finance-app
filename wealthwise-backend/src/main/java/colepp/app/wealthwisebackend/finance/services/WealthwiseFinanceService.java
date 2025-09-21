@@ -14,8 +14,9 @@ public class WealthwiseFinanceService {
 
 
     public MonthlyFinanceSummary createMonthlyFinanceSummary(String token) throws JsonProcessingException {
-        var transactions = plaidFinanceService.getTransactionalInformation(token);
+        var transactions = plaidFinanceService.getMonthlyTransactionalInformation(token);
         var accounts = plaidFinanceService.getAccountInformation(token);
+        var test = FinanceTools.createPlottedBalances(transactions.getTransactions(),accounts.getAccounts().get(0));
         var sortedCategories = FinanceTools.categorizeTransactions(transactions.getTransactions());
         System.out.println(sortedCategories);
 

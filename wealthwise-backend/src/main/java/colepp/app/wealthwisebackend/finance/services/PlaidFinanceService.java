@@ -6,7 +6,6 @@ import colepp.app.wealthwisebackend.finance.config.PlaidCredentials;
 import colepp.app.wealthwisebackend.finance.dtos.*;
 import colepp.app.wealthwisebackend.finance.exceptions.FailedPlaidRequest;
 
-import colepp.app.wealthwisebackend.finance.tools.FinanceTools;
 import colepp.app.wealthwisebackend.users.entities.User;
 import colepp.app.wealthwisebackend.users.entities.UserBanking;
 import colepp.app.wealthwisebackend.users.entities.UserLinkStatus;
@@ -52,7 +51,9 @@ public class PlaidFinanceService {
     // Default Values (may make these env vars later)
     private final int expireTime = 1800; // double check if this works lol
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    private final LocalDate defaultStartDate = LocalDate.now().minusDays(30);
+    private final LocalDate defaultMonthlyStartDate = LocalDate.now().minusDays(30);
+    private final LocalDate defaultYearlyStartDate = LocalDate.now().minusMonths(12);
+
 
     // Services
     private final JwtService jwtService;
@@ -91,36 +92,58 @@ public class PlaidFinanceService {
         return objectMapper.readValue(redisRequest, AccountInformationResponse.class);
     }
 
-    public AccountTransactionInformationResponse getTransactionalInformation(String token) throws JsonProcessingException {
+    public AccountTransactionInformationResponse getMonthlyTransactionalInformation(String token) throws JsonProcessingException {
         var user = userRepository.findByEmail(jwtService.getEmailFromToken(jwtService.formatToken(token))).orElse(null);
         if(user == null){
             throw new UserNotFoundException("User not found");
         }
         var userId = user.getId();
-        String redisRequest = redis.get("user-id-transactions-" + userId);
+        String redisRequest = redis.get("user-id-transactions-monthly" + userId);
         if (redisRequest == null) {
-            var userBankingInfo = userBankingRepository.findById(userId).orElse(null);
-            if(userBankingInfo == null){
-                throw new UserNotFoundException("User banking information found");
-            }
-            var transactionInfoRequest = AccountTransactionInformationRequest.builder()
-                .accessToken(userBankingInfo.getAccessToken())
-                .clientId(plaidCredentials.getClientId())
-                .secret(plaidCredentials.getSecretKey())
-                .startDate(formatter.format(defaultStartDate))
-                .endDate(formatter.format(LocalDate.now()))
-                .build();
-            System.out.println(transactionInfoRequest);
-            var response = sendPostRequest(objectMapper.writeValueAsString(transactionInfoRequest),"/transactions/get");
+            var request = buildTransactionInformationRequest(userId,defaultMonthlyStartDate);
+            var response = sendPostRequest(objectMapper.writeValueAsString(request),"/transactions/get");
             if(response == null){
                 throw new FailedPlaidRequest("Could not get transaction information");
             }
             AccountTransactionInformationResponse transactions = objectMapper.readValue(response.body(), AccountTransactionInformationResponse.class);
-            redis.set("user-id-transactions-" + userId, objectMapper.writeValueAsString(transactions));
-            redis.expire("user-id-transactions-" + userId, expireTime);
+            redis.set("user-id-transactions-monthly" + userId, objectMapper.writeValueAsString(transactions));
+            redis.expire("user-id-transactions-monthly" + userId, expireTime);
             return transactions;
         }
         return objectMapper.readValue(redisRequest, AccountTransactionInformationResponse.class);
+    }
+
+    public AccountTransactionInformationResponse getYearlyTransactionalInformation(String token) throws JsonProcessingException {
+        var user = userRepository.findByEmail(jwtService.getEmailFromToken(jwtService.formatToken(token))).orElse(null);
+        if(user == null){
+            throw new UserNotFoundException("User not found");
+        }
+        var userId = user.getId();
+        String redisRequest = redis.get("user-id-transactions-yearly" + userId);
+        if (redisRequest == null) {
+            var request = buildTransactionInformationRequest(userId, defaultYearlyStartDate);
+            System.out.println(request);
+            var response = sendPostRequest(objectMapper.writeValueAsString(request),"/transactions/get");
+            AccountTransactionInformationResponse transactions = objectMapper.readValue(response.body(), AccountTransactionInformationResponse.class);
+            redis.set("user-id-transactions-yearly" + userId, objectMapper.writeValueAsString(transactions));
+            redis.expire("user-id-transactions-yearly" + userId, expireTime);
+            return transactions;
+        }
+        return objectMapper.readValue(redisRequest, AccountTransactionInformationResponse.class);
+    }
+
+    public AccountTransactionInformationRequest buildTransactionInformationRequest(Long id,LocalDate startDate) throws JsonProcessingException {
+        var userBankingInfo = userBankingRepository.findById(id).orElse(null);
+        if(userBankingInfo == null){
+            throw new UserNotFoundException("User banking information found");
+        }
+        return AccountTransactionInformationRequest.builder()
+            .accessToken(userBankingInfo.getAccessToken())
+            .clientId(plaidCredentials.getClientId())
+            .secret(plaidCredentials.getSecretKey())
+            .startDate(formatter.format(startDate))
+            .endDate(formatter.format(LocalDate.now()))
+            .build();
     }
 
     /*

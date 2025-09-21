@@ -3,12 +3,10 @@ package colepp.app.wealthwisebackend.finance.tools;
 import colepp.app.wealthwisebackend.finance.dtos.AccountDetails;
 import colepp.app.wealthwisebackend.finance.dtos.PersonalFinanceCategory;
 import colepp.app.wealthwisebackend.finance.dtos.Transaction;
+import colepp.app.wealthwisebackend.finance.exceptions.GraphingException;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public final class FinanceTools {
 
@@ -63,6 +61,22 @@ public final class FinanceTools {
             }
         }
         return categorizedTransactions;
+    }
+
+    /* start at some balance from account x
+    * balance = 255
+    * when a transaction that comes from account x where the adjust the balance based on that transaction, store the reuslt in the plot on that date.
+    * if there are multiple transactions on the same date. calculate the balance of the account after all transactions on that day store that result to keep the map unique
+    * return the dates with their blanaces back to the clinet to be mapped out by d3 *
+   */
+    public static Map<String,Double> createPlottedBalances(List<Transaction> transactions,AccountDetails accountDetails) {
+        Map<String,Double> balances = new HashMap<>();
+        transactions.sort(Comparator.comparing(Transaction::getAuthorizedDate));
+        for (Transaction transaction : transactions) {
+            System.out.print(transaction.getAuthorizedDate() + " Amount: ");
+            System.out.println(transaction.getAmount());
+        }
+        return balances;
     }
 
     public static Map<String,List<Transaction>> categorizeTransactions(List<Transaction> transactions,String targetCategory) {

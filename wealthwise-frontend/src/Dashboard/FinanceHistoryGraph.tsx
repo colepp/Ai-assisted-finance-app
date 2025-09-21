@@ -17,7 +17,7 @@ const margin = { top: 20, right: 30, bottom: 30, left: 40 };
 export default function FinanceHistoryGraph() {
 
     function drawGraph(data: GraphProps) {
-
+        const x = d3.scaleUTC().domain()
     }
 
     useEffect(() => {
