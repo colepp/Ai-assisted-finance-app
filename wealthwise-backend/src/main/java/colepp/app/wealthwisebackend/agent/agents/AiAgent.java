@@ -1,5 +1,9 @@
 package colepp.app.wealthwisebackend.agent.agents;
 
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Service;
+
+@Service
 public interface AiAgent {
 
 

@@ -27,8 +27,5 @@ postmark:
   client-id: ${POSTMARK_CLIENT_KEY}
 
 gemini:
-
-
-
-openAI:
+  client-id: ${GEMINI_API_KEY}
 
