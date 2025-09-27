@@ -2,7 +2,7 @@ Okay Cole Here is your todo list
 
 Research notes:
     - Look into finding a email tool that can send emails to everyone.... for freeish.
-    - Find an AI api that's semi-free (probably gemini?).
+    - Find an AI api that's semi-free (probably gemini?). ✅
     - Actually learn how to code in react well lol.
     - Dockerize dis' project yo (FIRST PRIORITY...lokey tired of the work i have to do to startup)
     - Project cleanup (at least front end wise)
@@ -12,12 +12,12 @@ Research notes:
     0.A) Finally finally finally display user("hello name" type of thing) if the user is logged on remove the login button/register button too.
     0.B) Shine up the pages, some of them have some funky looks when data is being displayed(html/css nonsense) work,  on making more common components for stuff im prolly gonna use a lot
     0.C) Kinda high priority, refactor and clean up react code
-1. Fix and finish the auth process to work seamlessly im talking register/verify/link/login/auth tokens
+1. Fix and finish the auth process to work seamlessly im talking register/verify/link/login/auth tokens ⚠️⚠️⚠️
     1.A) make it so a user literally cannot do anything unless they're at least verified.
     1.B) Real 2FA? make it be the standard.
 2. Flesh out dashboard.
 3. CREATE ACTUAL ERROR HANDLING ON THE FRONT END!!, maybe even implement error docs.
 3. Create Tools like payment plans/charts.
-4. AI analysis soon... (gonna fs be the hardest part)
+4. AI analysis soon... (gonna fs be the hardest part) ✅
 5. Jump off a cliff.
 

@@ -10,6 +10,7 @@ import colepp.app.wealthwisebackend.finance.exceptions.PlaidCreateLinkTokenExcep
 import colepp.app.wealthwisebackend.finance.services.PlaidFinanceService;
 import colepp.app.wealthwisebackend.users.excpetions.UserNotFoundException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -52,15 +53,25 @@ public class PlaidController {
         return ResponseEntity.ok().body(transactionInformation);
     }
 
+//    @GetMapping("/investment_info")
+//    public ResponseEntity<AccountTransactionInformationResponse> getInvestmentInformation(@RequestHeader("Authorization") String token) throws JsonProcessingException {
+//
+//    }
+
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ErrorDto> handleUserNotFoundException() {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorDto("User Not Found", LocalDateTime.now()));
 
     }
 
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<ErrorDto> handleJwtError(){
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorDto("Expired JWT", LocalDateTime.now()));
+    }
+
     @ExceptionHandler(FailedPlaidRequest.class)
     public ResponseEntity<ErrorDto> handleFailedPlaidRequest() {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorDto("Failed PlaidRequest", LocalDateTime.now()));
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorDto("Plaid Error", LocalDateTime.now()));
     }
 
 }

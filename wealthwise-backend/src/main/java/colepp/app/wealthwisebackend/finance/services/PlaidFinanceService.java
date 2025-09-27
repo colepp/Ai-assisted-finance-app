@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
 
@@ -44,6 +45,7 @@ public class PlaidFinanceService {
     private final UserRepository userRepository;
     private final UserBankingRepository userBankingRepository;
     private final Jedis redis;
+    private final TextEncryptor textEncryptor;
 
     // Mapping for all these Dtos... might have to actually make my own mapper soon but it will do for now.
     private final ObjectMapper objectMapper;
@@ -82,14 +84,34 @@ public class PlaidFinanceService {
             }
             System.out.println("ACCOUNT INFORMATION: ");
             System.out.println(response.body());
-            redis.set("user-id-" + userId, response.body());
+            redis.set("user-id-" + userId, textEncryptor.encrypt(response.body()));
             redis.expire("user-id-" + userId, expireTime);
-            var mapped = objectMapper.readValue(response.body(), AccountInformationResponse.class);
-            System.out.println("Mapped value: ");
-            System.out.println(mapped);
-            return mapped;
+            return objectMapper.readValue(response.body(), AccountInformationResponse.class);
         }
-        return objectMapper.readValue(redisRequest, AccountInformationResponse.class);
+        return objectMapper.readValue(textEncryptor.decrypt(redisRequest), AccountInformationResponse.class);
+    }
+    public AccountInformationResponse getAccountInformation(Long id) throws JsonProcessingException {
+        String redisRequest = redis.get("user-id-" + id);
+        if (redisRequest == null) {
+            var userBankingInfo = userBankingRepository.findById(id).orElse(null);
+            if(userBankingInfo == null){
+                throw new UserNotFoundException("User banking information found");
+            }
+            var accountInfoRequest = AccountInformationRequest
+                .builder()
+                .accessToken(userBankingInfo.getAccessToken())
+                .clientId(plaidCredentials.getClientId())
+                .secret(plaidCredentials.getSecretKey())
+                .build();
+            var response = sendPostRequest(objectMapper.writeValueAsString(accountInfoRequest),"auth/get");
+            if(response == null) {
+                throw new FailedPlaidRequest("Could not get account information");
+            }
+            redis.set("user-id-" + id, textEncryptor.encrypt(response.body()));
+            redis.expire("user-id-" + id, expireTime);
+            return objectMapper.readValue(response.body(), AccountInformationResponse.class);
+        }
+        return objectMapper.readValue(textEncryptor.decrypt(redisRequest), AccountInformationResponse.class);
     }
 
     public AccountTransactionInformationResponse getMonthlyTransactionalInformation(String token) throws JsonProcessingException {
@@ -98,7 +120,7 @@ public class PlaidFinanceService {
             throw new UserNotFoundException("User not found");
         }
         var userId = user.getId();
-        String redisRequest = redis.get("user-id-transactions-monthly" + userId);
+        String redisRequest = redis.get("user-transactions-monthly-" + userId);
         if (redisRequest == null) {
             var request = buildTransactionInformationRequest(userId,defaultMonthlyStartDate);
             var response = sendPostRequest(objectMapper.writeValueAsString(request),"/transactions/get");
@@ -106,11 +128,26 @@ public class PlaidFinanceService {
                 throw new FailedPlaidRequest("Could not get transaction information");
             }
             AccountTransactionInformationResponse transactions = objectMapper.readValue(response.body(), AccountTransactionInformationResponse.class);
-            redis.set("user-id-transactions-monthly" + userId, objectMapper.writeValueAsString(transactions));
-            redis.expire("user-id-transactions-monthly" + userId, expireTime);
+            redis.set("user-transactions-monthly-" + userId, textEncryptor.encrypt(objectMapper.writeValueAsString(transactions)));
+            redis.expire("user-transactions-monthly-" + userId, expireTime);
             return transactions;
         }
-        return objectMapper.readValue(redisRequest, AccountTransactionInformationResponse.class);
+        return objectMapper.readValue(textEncryptor.decrypt(redisRequest), AccountTransactionInformationResponse.class);
+    }
+
+    public AccountTransactionInformationResponse getMonthlyTransactionalInformation(Long id) throws JsonProcessingException {
+        String redisRequest = redis.get("user-transactions-monthly-" + id);
+        if (redisRequest == null) {
+            var request = buildTransactionInformationRequest(id,defaultMonthlyStartDate);
+            var response = sendPostRequest(objectMapper.writeValueAsString(request),"/transactions/get");
+            if(response == null){
+                throw new FailedPlaidRequest("Could not get transaction information");
+            }
+            redis.set("user-transactions-monthly-" + id, textEncryptor.encrypt(response.body()));
+            redis.expire("user-transactions-monthly-" + id, expireTime);
+            return objectMapper.readValue(response.body(), AccountTransactionInformationResponse.class);
+        }
+        return objectMapper.readValue(textEncryptor.decrypt(redisRequest), AccountTransactionInformationResponse.class);
     }
 
     public AccountTransactionInformationResponse getYearlyTransactionalInformation(String token) throws JsonProcessingException {
@@ -124,12 +161,11 @@ public class PlaidFinanceService {
             var request = buildTransactionInformationRequest(userId, defaultYearlyStartDate);
             System.out.println(request);
             var response = sendPostRequest(objectMapper.writeValueAsString(request),"/transactions/get");
-            AccountTransactionInformationResponse transactions = objectMapper.readValue(response.body(), AccountTransactionInformationResponse.class);
-            redis.set("user-id-transactions-yearly" + userId, objectMapper.writeValueAsString(transactions));
+            redis.set("user-id-transactions-yearly" + userId, textEncryptor.encrypt(response.body()));
             redis.expire("user-id-transactions-yearly" + userId, expireTime);
-            return transactions;
+            return objectMapper.readValue(response.body(), AccountTransactionInformationResponse.class);
         }
-        return objectMapper.readValue(redisRequest, AccountTransactionInformationResponse.class);
+        return objectMapper.readValue(textEncryptor.decrypt(redisRequest), AccountTransactionInformationResponse.class);
     }
 
     public AccountTransactionInformationRequest buildTransactionInformationRequest(Long id,LocalDate startDate) throws JsonProcessingException {

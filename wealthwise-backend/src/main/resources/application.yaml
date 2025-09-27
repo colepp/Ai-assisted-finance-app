@@ -9,6 +9,9 @@ spring:
     show-sql: true
   jwt:
     secret:${JWT_SECRET}
+  encryption:
+    salt: ${WEALTHWISE_SALT_KEY}
+    encrypt-password: ${WEALTHWISE_ENCRYPT_PASSWORD}
 
 plaid:
   client-id: ${PLAID_CLIENT_KEY}

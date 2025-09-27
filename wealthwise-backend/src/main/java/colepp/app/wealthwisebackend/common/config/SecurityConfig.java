@@ -1,7 +1,9 @@
 package colepp.app.wealthwisebackend.common.config;
 
 import colepp.app.wealthwisebackend.common.filters.JwtAuthFilter;
-import lombok.AllArgsConstructor;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -14,6 +16,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.encrypt.Encryptors;
+import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -25,7 +29,9 @@ import java.util.Arrays;
 import java.util.List;
 
 
-@AllArgsConstructor
+//@AllArgsConstructor
+//@NoArgsConstructor
+@RequiredArgsConstructor
 
 @Configuration
 @EnableWebSecurity
@@ -35,7 +41,16 @@ public class SecurityConfig {
     private final JwtAuthFilter  jwtAuthFilter;
     private final PasswordEncoder passwordEncoder;
 
+    @Value("${spring.encryption.salt}")
+    public String salt;
 
+    @Value("${spring.encryption.encrypt-password}")
+    public String encryptPassword;
+
+    @Bean
+    public TextEncryptor textEncryptor(){
+        return Encryptors.text(salt, encryptPassword);
+    }
 
     @Bean
     public SecurityFilterChain configure(HttpSecurity http) throws Exception {
@@ -62,7 +77,7 @@ public class SecurityConfig {
     @Bean
     UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedOrigins(List.of("http://localhost:5173/", "http://localhost:5173"));
+        corsConfiguration.setAllowedOrigins(List.of("http://localhost:5173/"));
         corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "OPTIONS"));
         corsConfiguration.setAllowedHeaders(Arrays.asList("*"));
         corsConfiguration.setAllowCredentials(true);
