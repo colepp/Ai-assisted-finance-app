@@ -21,7 +21,7 @@ public class WealthwiseFinanceService {
 
 
     public MonthlyFinanceSummary createMonthlyFinanceSummary(String token) throws JsonProcessingException {
-        var user = userRepository.findByEmail(jwtService.getEmailFromToken(token)).orElse(null);
+        var user = userRepository.findByEmail(jwtService.getEmailFromToken(jwtService.formatToken(token))).orElse(null);
         if(user == null){
             throw new UserNotFoundException("User not found");
         }
@@ -30,7 +30,7 @@ public class WealthwiseFinanceService {
         var transactions = plaidFinanceService.getMonthlyTransactionalInformation(userId);
         var accounts = plaidFinanceService.getAccountInformation(userId);
 //        var test = FinanceTools.createPlottedBalances(transactions.getTransactions(),accounts.getAccounts().get(0));
-        var monthlyFinanceSummary = new MonthlyFinanceSummary(accounts,transactions);
+//        var monthlyFinanceSummary = new MonthlyFinanceSummary(accounts,transactions);
 //        var aiResponse = aiAgent.createEval("monthly",monthlyFinanceSummary.toString());
 
         return new MonthlyFinanceSummary(accounts,transactions);

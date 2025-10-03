@@ -31,7 +31,7 @@ public class MonthlyFinanceSummary {
     public MonthlyFinanceSummary(AccountInformationResponse accountInformation, AccountTransactionInformationResponse transactionHistory) {
         this.accountInformation = accountInformation;
         this.transactionHistory = transactionHistory;
-        if (transactionHistory.getTransactions().isEmpty()) {
+        if (transactionHistory == null || transactionHistory.getTransactions().isEmpty()) {
             this.income = 0;
             this.expense = 0;
         }

@@ -21,17 +21,14 @@ public class RegisterUserDto {
 
     @NotBlank(message = "Password is Required ")
     @Size(min = 6,max= 25,message = "Password mus be between 6 to 25 characters")
-    @StrongPassword
     public String password;
 
     @NotBlank(message = "Password connfirmation is Required ")
     @Size(min = 6,max= 25,message = "Password mus be between 6 to 25 characters")
-    @StrongPassword
     @JsonProperty("confirm_password")
     public String confirmPassword;
 
     @JsonProperty("phone_number")
     @NotBlank(message = "Phone number is required")
-    @ProperPhoneNumber
     public String phoneNumber;
 }

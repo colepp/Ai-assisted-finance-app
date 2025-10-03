@@ -18,7 +18,7 @@ export default function RegisterPage(){
   const [password,setPassword] = useState('');
   const [confirmPassword,setConfirmPassword] = useState('');
 
-  
+
 //   const [errorMessage,setErrorMessage] = useState('');
 
   function handleFirstNameChange(event: React.ChangeEvent<HTMLInputElement>){
@@ -44,10 +44,10 @@ export default function RegisterPage(){
   function handleConfirmPasswordChange(event: React.ChangeEvent<HTMLInputElement>){
     setConfirmPassword(event.target.value);
   }
-  
+
   async function handleSignUp() {
       const areaCode = document.getElementById('area-code') as HTMLSelectElement;
-    
+
     try{
       const response = await fetch('/api/users', {
         method: 'POST',
@@ -66,7 +66,7 @@ export default function RegisterPage(){
         console.log(data);
         if(data.message){
             console.error(`${data.message}: ${data.timestamp}`);
-            
+
         }else{
             setCookie('auth-token',data.token);
             navigate("/verify");
@@ -76,7 +76,7 @@ export default function RegisterPage(){
       }
     }
 
-  
+
   return (
       <>
           <Header/>

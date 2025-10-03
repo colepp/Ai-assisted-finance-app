@@ -139,7 +139,9 @@ public class PlaidFinanceService {
         String redisRequest = redis.get("user-transactions-monthly-" + id);
         if (redisRequest == null) {
             var request = buildTransactionInformationRequest(id,defaultMonthlyStartDate);
+            System.out.printf("Request: " + request);
             var response = sendPostRequest(objectMapper.writeValueAsString(request),"/transactions/get");
+            System.out.printf("Response: " + response);
             if(response == null){
                 throw new FailedPlaidRequest("Could not get transaction information");
             }
@@ -197,7 +199,7 @@ public class PlaidFinanceService {
     }
 
     public void exchangePublicToken(String publicToken, String token) throws Exception {
-        var user = userRepository.findByEmail(jwtService.getEmailFromToken(jwtService.formatToken(publicToken))).orElse(null);
+        var user = userRepository.findByEmail(jwtService.getEmailFromToken(jwtService.formatToken(token))).orElse(null);
         if (user == null) {
             throw new UserNotFoundException("User Not Found");
         }
