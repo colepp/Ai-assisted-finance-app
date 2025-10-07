@@ -222,7 +222,18 @@ export default function Dashboard() {
                                                             {transaction.formattedAuthorizedDate}
                                                         </td>
                                                         <td className="px-4 md:px-6 py-4 text-gray-900 dark:text-white">
-                                                            {transaction.counterparties.length > 0 ? transaction.counterparties[0].name : 'Unknown'}
+                                                            <div className="flex items-center gap-3">
+                                                                {transaction.counterparties.length > 0 && transaction.counterparties[0].logo_url && (
+                                                                    <img
+                                                                        src={transaction.counterparties[0].logo_url}
+                                                                        alt={transaction.counterparties[0].name}
+                                                                        className="w-8 h-8 rounded-full object-cover"
+                                                                    />
+                                                                )}
+                                                                <span>
+                                                                    {transaction.counterparties.length > 0 ? transaction.counterparties[0].name : 'Unknown'}
+                                                                </span>
+                                                            </div>
                                                         </td>
                                                         <td
                                                             className={`px-4 md:px-6 py-4 ${
