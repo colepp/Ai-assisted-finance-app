@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import Footer from '../PageComponents/Footer';
-import Header from '../PageComponents/Header';
 import { getCookie } from "../Utils/Utils.tsx";
 import { useNavigate } from 'react-router-dom';
-import { Menu, X, Home, DollarSign, CreditCard } from "lucide-react"; // Assuming Lucide icons for sidebar
+import Footer from '../PageComponents/Footer';
+import Header from '../PageComponents/Header';
+import { Menu, X, Home, DollarSign, CreditCard, MessageSquare, BarChart3 } from "lucide-react";// Assuming Lucide icons for sidebar
 
 interface Transaction {
     pending: boolean;
@@ -54,12 +54,15 @@ interface ApiResponse {
     expense: number;
 }
 
+
+// ... existing interfaces ...
+
 export default function Dashboard() {
-    const [activeTab, setActiveTab] = useState<'summary' | 'transactions' | 'accounts'>('summary');
+    const [activeTab, setActiveTab] = useState<'summary' | 'transactions' | 'accounts' | 'ai-chat' | 'visualization'>('summary');
     const [apiData, setApiData] = useState<ApiResponse | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-    const [sidebarOpen, setSidebarOpen] = useState<boolean>(false); // For mobile sidebar toggle
+    const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
 
     const nav = useNavigate();
 
@@ -67,6 +70,8 @@ export default function Dashboard() {
         { id: 'summary', label: 'Summary', icon: Home },
         { id: 'transactions', label: 'Transactions', icon: DollarSign },
         { id: 'accounts', label: 'Accounts', icon: CreditCard },
+        { id: 'ai-chat', label: 'AI Chat', icon: MessageSquare },
+        { id: 'visualization', label: 'Visualization', icon: BarChart3 },
     ] as const;
 
     useEffect(() => {
@@ -134,7 +139,7 @@ export default function Dashboard() {
                             }`}
                             onClick={() => {
                                 setActiveTab(tab.id);
-                                setSidebarOpen(false); // Close sidebar on mobile after selection
+                                setSidebarOpen(false);
                             }}
                         >
                             <tab.icon className="w-5 h-5 mr-3" />
@@ -284,6 +289,72 @@ export default function Dashboard() {
                                 </div>
                             </section>
                         )}
+
+                        {activeTab === 'ai-chat' && (
+                            <section className="bg-white dark:bg-gray-800 rounded-xl shadow-lg">
+                                <div className="p-6 md:p-8">
+                                    <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-900 dark:text-white">
+                                        AI Financial Assistant
+                                    </h2>
+                                    <p className="text-center mt-4 text-gray-600 dark:text-gray-300">
+                                        Get AI-powered insights about your financial data
+                                    </p>
+
+                                    <div className="mt-8 flex flex-col items-center gap-4 max-w-2xl mx-auto">
+                                        <div className="w-full grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                            <button
+                                                className="px-6 py-4 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-md hover:shadow-lg flex flex-col items-center gap-2"
+                                                onClick={() => console.log('Monthly summary requested')}
+                                            >
+                                                <span className="text-lg">📅</span>
+                                                <span>Monthly Summary</span>
+                                            </button>
+
+                                            <button
+                                                className="px-6 py-4 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-md hover:shadow-lg flex flex-col items-center gap-2"
+                                                onClick={() => console.log('Annual summary requested')}
+                                            >
+                                                <span className="text-lg">📊</span>
+                                                <span>Annual Summary</span>
+                                            </button>
+
+                                            <button
+                                                className="px-6 py-4 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-md hover:shadow-lg flex flex-col items-center gap-2"
+                                                onClick={() => console.log('Full summary requested')}
+                                            >
+                                                <span className="text-lg">📈</span>
+                                                <span>Full Summary</span>
+                                            </button>
+                                        </div>
+
+                                        <div className="w-full mt-6 p-6 bg-gray-100 dark:bg-gray-700 rounded-lg min-h-[300px]">
+                                            <p className="text-gray-600 dark:text-gray-300 text-center">
+                                                Select a summary type above to get AI-powered insights
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        )}
+
+                        {activeTab === 'visualization' && (
+                            <section className="bg-white dark:bg-gray-800 rounded-xl shadow-lg">
+                                <div className="p-6 md:p-8">
+                                    <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-900 dark:text-white">
+                                        Financial Visualizations
+                                    </h2>
+                                    <p className="text-center mt-4 text-gray-600 dark:text-gray-300">
+                                        Interactive charts and graphs of your financial data
+                                    </p>
+
+                                    <div className="mt-8 p-6 bg-gray-100 dark:bg-gray-700 rounded-lg min-h-[400px] flex items-center justify-center">
+                                        <p className="text-gray-600 dark:text-gray-300 text-center">
+                                            Visualization charts will be displayed here
+                                        </p>
+                                    </div>
+                                </div>
+                            </section>
+                        )}
                     </div>
                 </main>
                 <Footer />
@@ -291,3 +362,5 @@ export default function Dashboard() {
         </div>
     );
 }
+
+

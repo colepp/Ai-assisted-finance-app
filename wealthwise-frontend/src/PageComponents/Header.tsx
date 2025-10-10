@@ -1,5 +1,20 @@
+import { useState, useEffect } from 'react';
+import Cookies from 'universal-cookie';
 
 export default function Header(){
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const cookies = new Cookies();
+
+    useEffect(() => {
+        const authToken = cookies.get('auth-token');
+        setIsLoggedIn(!!authToken);
+    }, []);
+
+    const handleSignOut = () => {
+        cookies.remove('auth-token');
+        setIsLoggedIn(false);
+        window.location.href = '/';
+    };
 
     return(
         <>
@@ -80,21 +95,32 @@ export default function Header(){
 
                         <div className="flex items-center gap-4">
                             <div className="sm:flex sm:gap-4">
-                                <a
-                                    className="rounded-md bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm dark:hover:bg-indigo-500"
-                                    href="/login"
-                                >
-                                    Login
-                                </a>
-
-                                <div className="hidden sm:flex">
-                                    <a
-                                        className="rounded-md bg-gray-100 px-5 py-2.5 text-sm font-medium text-white dark:bg-gray-800 dark:text-white dark:hover:text-white/75"
-                                        href="/register"
+                                {isLoggedIn ? (
+                                    <button
+                                        onClick={handleSignOut}
+                                        className="rounded-md bg-gray-100 px-5 py-2.5 text-sm font-medium text-gray-900 dark:bg-gray-800 dark:text-white dark:hover:text-white/75"
                                     >
-                                        Register
-                                    </a>
-                                </div>
+                                        Logout
+                                    </button>
+                                ) : (
+                                    <>
+                                        <a
+                                            className="rounded-md bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm dark:hover:bg-indigo-500"
+                                            href="/login"
+                                        >
+                                            Login
+                                        </a>
+
+                                        <div className="hidden sm:flex">
+                                            <a
+                                                className="rounded-md bg-gray-100 px-5 py-2.5 text-sm font-medium text-gray-900 dark:bg-gray-800 dark:text-white dark:hover:text-white/75"
+                                                href="/register"
+                                            >
+                                                Register
+                                            </a>
+                                        </div>
+                                    </>
+                                )}
                             </div>
 
                             <div className="block md:hidden">
