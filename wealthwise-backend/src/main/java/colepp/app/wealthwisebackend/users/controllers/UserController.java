@@ -1,9 +1,8 @@
 package colepp.app.wealthwisebackend.users.controllers;
 
 
-import colepp.app.wealthwisebackend.common.dtos.JwtResponseDto;
+import colepp.app.wealthwisebackend.common.dtos.JwtResponse;
 import colepp.app.wealthwisebackend.common.dtos.ErrorDto;
-import colepp.app.wealthwisebackend.common.services.EmailService;
 import colepp.app.wealthwisebackend.users.dtos.RegisterUserDto;
 import colepp.app.wealthwisebackend.users.dtos.UpdateUserDto;
 import colepp.app.wealthwisebackend.users.dtos.UserDto;
@@ -44,13 +43,14 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<JwtResponseDto> registerUser(
+    public ResponseEntity<JwtResponse> registerUser(
             @Valid @RequestBody RegisterUserDto request,
             UriComponentsBuilder uriBuilder) {
 
         var user = userService.registerUser(request);
         var uri = uriBuilder.path("/users/{id}").buildAndExpand(user.getId()).toUri();
-        JwtResponseDto token = userService.registerSignIn(user.getEmail());
+        JwtResponse token = userService.registerSignIn(user.getEmail());
+        System.out.println(token);
         return ResponseEntity.created(uri).body(token);
     }
 

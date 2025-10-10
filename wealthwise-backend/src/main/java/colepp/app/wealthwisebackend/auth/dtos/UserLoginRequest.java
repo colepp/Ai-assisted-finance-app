@@ -7,7 +7,7 @@ import lombok.Data;
 
 
 @Data
-public class UserLoginDto {
+public class UserLoginRequest {
 
     @NotBlank(message = "password Required")
     @Email

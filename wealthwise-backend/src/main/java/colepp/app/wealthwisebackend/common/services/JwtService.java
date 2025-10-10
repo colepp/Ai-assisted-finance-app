@@ -15,19 +15,32 @@ import java.util.Date;
 @RequiredArgsConstructor
 @Service
 public class JwtService {
-    final long tokenExpiration = 86400;
+
+    final long refreshTokenExpiration = 604800;
+    final long accessTokenExpiration = 1200;
+
 
     @Value("${spring.jwt}")
     private String secret;
 
-    public String generateToken(String email) {
+    public String generateAccessToken(String email) {
         return Jwts
                 .builder()
                 .subject(email)
                 .issuedAt(new Date())
-                .expiration(new  Date(System.currentTimeMillis() + 1000 * tokenExpiration))
+                .expiration(new  Date(System.currentTimeMillis() + 1000 * accessTokenExpiration))
                 .signWith(Keys.hmacShaKeyFor(secret.getBytes()))
                 .compact();
+    }
+
+    public String generateRefreshToken(String email) {
+        return Jwts
+            .builder()
+            .subject(email)
+            .issuedAt(new Date())
+            .expiration(new Date(System.currentTimeMillis() + 1000 *refreshTokenExpiration))
+            .signWith(Keys.hmacShaKeyFor(secret.getBytes()))
+            .compact();
     }
 
     public boolean isValidToken(String token) {
