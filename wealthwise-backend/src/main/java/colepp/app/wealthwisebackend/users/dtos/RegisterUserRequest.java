@@ -1,7 +1,5 @@
 package colepp.app.wealthwisebackend.users.dtos;
 
-import colepp.app.wealthwisebackend.users.validation.ProperPhoneNumber;
-import colepp.app.wealthwisebackend.users.validation.StrongPassword;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -9,7 +7,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
-public class RegisterUserDto {
+public class RegisterUserRequest {
 
     @NotBlank(message = "Name is required")
     @Size(max = 255,message = "Name must be less than 255 characters")

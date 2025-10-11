@@ -1,10 +1,11 @@
 package colepp.app.wealthwisebackend.users.services;
 
+import colepp.app.wealthwisebackend.auth.dtos.UserLoginResponse;
 import colepp.app.wealthwisebackend.common.dtos.JwtResponse;
 import colepp.app.wealthwisebackend.common.services.EmailService;
 import colepp.app.wealthwisebackend.common.services.JwtService;
-import colepp.app.wealthwisebackend.users.dtos.RegisterUserDto;
-import colepp.app.wealthwisebackend.users.dtos.UpdateUserDto;
+import colepp.app.wealthwisebackend.users.dtos.RegisterUserRequest;
+import colepp.app.wealthwisebackend.users.dtos.UpdateUserRequest;
 import colepp.app.wealthwisebackend.users.dtos.UserDto;
 import colepp.app.wealthwisebackend.users.entities.User;
 import colepp.app.wealthwisebackend.users.entities.UserBanking;
@@ -45,7 +46,7 @@ public class UserService implements UserDetailsService {
         return user;
     }
 
-    public UserDto updateUser(Long id, UpdateUserDto updateUserRequest){
+    public UserDto updateUser(Long id, UpdateUserRequest updateUserRequest){
         var user = userRepository.findById(id).orElse(null);
         if(user == null){
             throw new UserNotFoundException("User not found");
@@ -60,7 +61,7 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public UserDto registerUser(RegisterUserDto request){
+    public UserDto registerUser(RegisterUserRequest request){
 
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new AccountExistException("Email already exists");
@@ -84,8 +85,11 @@ public class UserService implements UserDetailsService {
         return userMapper.userToUserDto(user);
     }
 
-    public JwtResponse registerSignIn(String email){
-        return new JwtResponse(jwtService.generateAccessToken(email));
+    public UserLoginResponse registerSignIn(String email){
+        return new UserLoginResponse(
+                jwtService.generateAccessToken(email),
+                jwtService.generateRefreshToken(email)
+        );
     }
 
     public void deleteUser(Long id){

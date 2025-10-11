@@ -65,12 +65,14 @@ export default function RegisterPage(){
         const data = await response.json();
         console.log(data);
         if(data.message){
+            console.log("There was an error")
             console.error(`${data.message}: ${data.timestamp}`);
 
-        }else{
+        }else if(data.token){
             setCookie('auth-token',data.token);
             navigate("/verify");
         }
+        console.log("Request complete");
       }catch(e){
         console.log(e);
       }
